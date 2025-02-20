@@ -7,13 +7,14 @@ import com.haw.hurtigruten.bookingservice.exceptions.BookingAlreadyConfirmedExce
 import com.haw.hurtigruten.bookingservice.exceptions.BookingNotFoundException;
 import com.haw.hurtigruten.bookingservice.exceptions.CustomerNotFoundException;
 import com.haw.hurtigruten.bookingservice.services.BookingService;
+import com.haw.hurtigruten.kafka.model.GeoData;
+import com.haw.hurtigruten.kafka.resource.GeoDataProcessor;
+import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -29,6 +30,16 @@ public class BookingRestController {
 
     @Inject
     BookingService bookingService;
+
+    @Inject
+    GeoDataProcessor geoDataProcessor;
+
+    @GET
+    @Path("/geo-data")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    public Multi<GeoData> getGeoData() {
+        return geoDataProcessor.getGeoDataStream();
+    }
 
     @Operation(description = "Get all bookings")
     @APIResponses(value = {
