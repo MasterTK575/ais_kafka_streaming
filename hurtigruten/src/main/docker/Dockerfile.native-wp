@@ -1,0 +1,14 @@
+# fixes: https://boxofcuriosities.co.uk/post/quarkus-getting-started-glibc-2-33-not-found-when-trying-to
+FROM redhat/ubi9-minimal:9.4
+RUN microdnf install libstdc++
+
+WORKDIR /work/
+RUN chown 1001 /work \
+    && chmod "g+rwX" /work \
+    && chown 1001:root /work
+COPY --chown=1001:root build/*-runner /work/application
+
+EXPOSE 8080
+USER 1001
+
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
