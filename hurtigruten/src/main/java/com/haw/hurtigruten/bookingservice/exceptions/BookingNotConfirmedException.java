@@ -11,7 +11,6 @@ public class BookingNotConfirmedException extends Exception {
 
     public BookingNotConfirmedException(Long bookingId) {
         super(String.format("Booking with number %d was not confirmed.", bookingId));
-
         this.bookingId = bookingId;
     }
 }

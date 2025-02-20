@@ -11,7 +11,6 @@ public class BookingAlreadyConfirmedException extends Exception {
 
     public BookingAlreadyConfirmedException(Long bookingId) {
         super(String.format("Booking with number %d was already confirmed.", bookingId));
-
         this.bookingId = bookingId;
     }
 }

@@ -8,8 +8,6 @@ import com.haw.hurtigruten.bookingservice.domain.dtos.IdDTO;
 import com.haw.hurtigruten.bookingservice.domain.entities.Customer;
 import com.haw.hurtigruten.bookingservice.domain.repositories.BookingRepository;
 import com.haw.hurtigruten.bookingservice.domain.repositories.CustomerRepository;
-import com.haw.hurtigruten.bookingservice.gateway.mail.BookingServiceMailGateway;
-import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -25,8 +23,6 @@ import java.net.URL;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class BookingRestControllerTest {
@@ -38,11 +34,6 @@ class BookingRestControllerTest {
     @TestHTTPEndpoint(BookingRestController.class)
     @TestHTTPResource
     private URL bookingRestControllerURL;
-    @TestHTTPEndpoint(CustomerRestController.class)
-    @TestHTTPResource
-    private URL customerRestControllerURL;
-    @InjectMock
-    private BookingServiceMailGateway bookingServiceMailGateway;
 
     private Customer customer;
 
@@ -56,8 +47,6 @@ class BookingRestControllerTest {
                 new Email("stefan.sarstedt@haw-hamburg.de"),
                 new PhoneNumber("+49-040-428758434"));
         this.customerRepository.persist(customer);
-
-        when(bookingServiceMailGateway.sendMail(anyString(), anyString(), anyString())).thenReturn(true);
     }
 
     // -------------------------------------------------------------------------------------------------------------------
@@ -93,7 +82,7 @@ class BookingRestControllerTest {
                 contentType(ContentType.JSON).
                 body(new BookingCreateDTO("Mein Schiff 42")).
         when().
-                post(customerRestControllerURL + "/{id}/bookings", customer.getId()).
+                post(bookingRestControllerURL + "/add/{id}", customer.getId()).
         then().
                 statusCode(Response.Status.CREATED.getStatusCode()).
         extract().
@@ -121,7 +110,7 @@ class BookingRestControllerTest {
                 contentType(ContentType.JSON).
                 body(new BookingCreateDTO("Mein Schiff 42")).
         when().
-                post(customerRestControllerURL + "/{id}/bookings", customer.getId()).
+                post(bookingRestControllerURL + "/add/{id}", customer.getId()).
         then().
                 statusCode(Response.Status.CREATED.getStatusCode()).
         extract().
@@ -132,6 +121,19 @@ class BookingRestControllerTest {
                 put(bookingRestControllerURL + "/{id}/confirm", bookingId).
         then().
                 statusCode(Response.Status.OK.getStatusCode());
+        //@formatter:on
+    }
+
+    @Test
+    void addBookingToCustomerFailBecauseOfCustomerNotFound() {
+        //@formatter:off
+        given().
+                contentType(ContentType.JSON).
+                body(new BookingCreateDTO("some ship")).
+                when().
+                post(bookingRestControllerURL + "/add/{id}", Integer.MAX_VALUE).
+                then().
+                statusCode(Response.Status.NOT_FOUND.getStatusCode());
         //@formatter:on
     }
 }

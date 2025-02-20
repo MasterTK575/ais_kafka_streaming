@@ -1,10 +1,12 @@
 package com.haw.hurtigruten.bookingservice.domain.entities;
 
-import com.haw.hurtigruten.bookingservice.domain.datatypes.BookingCode;
 import com.haw.hurtigruten.bookingservice.domain.datatypes.BookingStatus;
 import com.haw.hurtigruten.bookingservice.domain.datatypes.CheckInStatus;
 import com.haw.hurtigruten.bookingservice.domain.dtos.BookingCreateDTO;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,10 +22,6 @@ public class Booking {
     @Id
     @GeneratedValue
     private Long id;
-
-    @Setter(AccessLevel.NONE)
-    @Column(unique = true, nullable = false, length = 100)
-    private final BookingCode bookingCode = new BookingCode();
 
     @Setter(AccessLevel.NONE)
     private final Date createdOn = new Date();

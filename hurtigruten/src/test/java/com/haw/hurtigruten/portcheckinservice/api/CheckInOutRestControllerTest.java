@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.containsString;
 @Transactional
 class CheckInOutRestControllerTest {
 
-
     @Inject
     BookingRepository bookingRepository;
 

@@ -6,11 +6,8 @@ import com.haw.hurtigruten.bookingservice.domain.datatypes.PhoneNumber;
 import com.haw.hurtigruten.bookingservice.domain.dtos.BookingCreateDTO;
 import com.haw.hurtigruten.bookingservice.domain.dtos.CustomerCreateDTO;
 import com.haw.hurtigruten.bookingservice.domain.dtos.CustomerUpdateDTO;
-import com.haw.hurtigruten.bookingservice.domain.dtos.IdDTO;
 import com.haw.hurtigruten.bookingservice.domain.entities.Customer;
 import com.haw.hurtigruten.bookingservice.domain.repositories.CustomerRepository;
-import com.haw.hurtigruten.bookingservice.gateway.mail.BookingServiceMailGateway;
-import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -23,16 +20,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @QuarkusTest
 class CustomerRestControllerTest {
@@ -42,8 +34,6 @@ class CustomerRestControllerTest {
     @TestHTTPEndpoint(CustomerRestController.class)
     @TestHTTPResource
     private URL customerRestControllerURL;
-    @InjectMock
-    private BookingServiceMailGateway bookingServiceMailGateway;
 
     private Customer customer;
 
@@ -93,8 +83,6 @@ class CustomerRestControllerTest {
                 new Email("stefan.sarstedt@haw-hamburg.de"),
                 new PhoneNumber("+49-040-428758434"));
         this.customerRepository.persist(customer);
-
-        when(bookingServiceMailGateway.sendMail(anyString(), anyString(), anyString())).thenReturn(true);
     }
 
     // -------------------------------------------------------------------------------------------------------------------
@@ -213,38 +201,6 @@ class CustomerRestControllerTest {
         //@formatter:off
         given().
                 delete(customerRestControllerURL + "/{id}", Integer.MAX_VALUE).
-        then().
-                statusCode(Response.Status.NOT_FOUND.getStatusCode());
-        //@formatter:on
-    }
-
-    @Test
-    void createBookingSuccess() throws IOException {
-        //@formatter:off
-        Long bookingId = given().
-                contentType(ContentType.JSON).
-                body(new BookingCreateDTO("Mein Schiff 42")).
-        when().
-                post(customerRestControllerURL + "/{id}/bookings", customer.getId()).
-        then().
-                statusCode(Response.Status.CREATED.getStatusCode()).
-                body("id", is(greaterThan(0))).
-        extract().
-                body().as(IdDTO.class).getId();
-        //@formatter:on
-
-        // check if Mail was sent
-        verify(bookingServiceMailGateway, times(1)).sendMail(anyString(), anyString(), anyString());
-    }
-
-    @Test
-    void addBookingToCustomerFailBecauseOfCustomerNotFound() {
-        //@formatter:off
-        given().
-                contentType(ContentType.JSON).
-                body(new BookingCreateDTO("some ship")).
-        when().
-                post(customerRestControllerURL + "/{id}/bookings", Integer.MAX_VALUE).
         then().
                 statusCode(Response.Status.NOT_FOUND.getStatusCode());
         //@formatter:on

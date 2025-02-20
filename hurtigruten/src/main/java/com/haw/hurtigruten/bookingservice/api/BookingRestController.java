@@ -6,7 +6,6 @@ import com.haw.hurtigruten.bookingservice.domain.entities.Booking;
 import com.haw.hurtigruten.bookingservice.exceptions.BookingAlreadyConfirmedException;
 import com.haw.hurtigruten.bookingservice.exceptions.BookingNotFoundException;
 import com.haw.hurtigruten.bookingservice.exceptions.CustomerNotFoundException;
-import com.haw.hurtigruten.bookingservice.exceptions.MailNotSentException;
 import com.haw.hurtigruten.bookingservice.services.BookingService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -37,7 +36,7 @@ public class BookingRestController {
     })
     @GET
     public List<Booking> getBookings() {
-        return bookingService.getBookings();
+        return bookingService.getAllBookings();
     }
 
     @Operation(description = "Get a single booking")
@@ -48,7 +47,7 @@ public class BookingRestController {
     @Path("/{bookingId:[\\d]+}")
     @GET
     public Booking getBooking(Long bookingId) throws BookingNotFoundException {
-        return bookingService.getBooking(bookingId);
+        return bookingService.getBookingById(bookingId);
     }
 
     @Operation(description = "Add a booking to a customer")

@@ -28,9 +28,6 @@ public class APIExceptionMapper implements ExceptionMapper<Exception> {
             case BookingNotConfirmedException e -> {
                 return Response.status(Response.Status.BAD_REQUEST).entity(exception.toString()).build();
             }
-            case MailNotSentException e -> {
-                return Response.status(Response.Status.BAD_REQUEST).entity(exception.toString()).build();
-            }
             case InvalidCheckInStatusException e -> {
                 return Response.status(Response.Status.BAD_REQUEST).entity(exception.toString()).build();
             }

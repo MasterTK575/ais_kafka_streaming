@@ -2,7 +2,6 @@ package com.haw.hurtigruten.bookingservice.api;
 
 import com.haw.hurtigruten.bookingservice.domain.datatypes.Email;
 import com.haw.hurtigruten.bookingservice.domain.datatypes.PhoneNumber;
-import com.haw.hurtigruten.bookingservice.domain.dtos.BookingCreateDTO;
 import com.haw.hurtigruten.bookingservice.domain.dtos.CustomerCreateDTO;
 import com.haw.hurtigruten.bookingservice.domain.dtos.CustomerUpdateDTO;
 import com.haw.hurtigruten.bookingservice.domain.dtos.IdDTO;
@@ -10,7 +9,6 @@ import com.haw.hurtigruten.bookingservice.domain.entities.Booking;
 import com.haw.hurtigruten.bookingservice.domain.entities.Customer;
 import com.haw.hurtigruten.bookingservice.domain.repositories.CustomerRepository;
 import com.haw.hurtigruten.bookingservice.exceptions.CustomerNotFoundException;
-import com.haw.hurtigruten.bookingservice.exceptions.MailNotSentException;
 import com.haw.hurtigruten.bookingservice.services.BookingService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -63,8 +61,8 @@ public class CustomerRestController {
     })
     @Path("/{customerId:[\\d]+}/bookings")
     @GET
-    public List<Booking> getBookingsOfCustomer(Long customerId, @QueryParam(value = "onlyConfirmed") Boolean onlyConfirmed) throws CustomerNotFoundException {
-        return bookingService.getBookings(customerId, onlyConfirmed);
+    public List<Booking> getBookingsOfCustomer(Long customerId) throws CustomerNotFoundException {
+        return bookingService.getBookingsByCustomer(customerId);
     }
 
     @Operation(description = "Delete a customer by Id")

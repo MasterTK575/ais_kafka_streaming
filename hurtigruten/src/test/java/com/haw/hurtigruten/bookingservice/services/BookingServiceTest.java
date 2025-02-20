@@ -14,11 +14,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @QuarkusTest
 @Transactional
 class BookingServiceTest {
-
 
     @Inject
     private CustomerRepository customerRepository;
@@ -53,13 +53,16 @@ class BookingServiceTest {
     }
 
     @Test
-    void getBookingSuccess() {
-        assertThat(bookingService.getBooking(confirmedBooking.getId())).isNotEmpty();
+    void getBookingByIdSuccess() {
+        assertThatCode(() -> bookingService.getBookingById(confirmedBooking.getId())).doesNotThrowAnyException();
     }
 
     @Test
-    void getBookingFailBecauseOfNotFound() {
-        assertThat(bookingService.getBooking(Long.MAX_VALUE)).isEmpty();
+    void getBookingByIdFailBecauseOfNotFound() {
+        assertThatExceptionOfType(BookingNotFoundException.class)
+                .isThrownBy(() -> {
+                    bookingService.getBookingById(Long.MAX_VALUE);
+                });
     }
 
     @Test

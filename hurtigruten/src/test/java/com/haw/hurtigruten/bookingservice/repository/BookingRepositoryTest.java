@@ -12,11 +12,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @Transactional
@@ -45,11 +40,5 @@ class BookingRepositoryTest {
         customer.addBooking(confirmedBooking);
 
         customerRepository.persist(customer);
-    }
-
-    @Test
-    void findConfirmedBookingsSuccess() {
-        List<Booking> actual = bookingRepository.findConfirmedBookings(customer.getId());
-        assertThat(actual).size().isEqualTo(1);
     }
 }

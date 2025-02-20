@@ -12,6 +12,4 @@ public class CustomerRepository implements PanacheRepository<Customer> {
     public Optional<Customer> findByLastName(String lastName) {
         return find("lastName", lastName).firstResultOptional();
     }
-
-    //Optional<Customer> findByBookingsContaining(Booking booking);
 }
