@@ -14,6 +14,8 @@ dependencies {
     implementation 'io.quarkus:quarkus-messaging-kafka'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-smallrye-openapi'
+    implementation 'org.java-websocket:Java-WebSocket:1.6.0'
+    implementation 'org.openapitools:openapi-java-client:1.0.0'
 
     testImplementation 'io.quarkus:quarkus-junit5'
 

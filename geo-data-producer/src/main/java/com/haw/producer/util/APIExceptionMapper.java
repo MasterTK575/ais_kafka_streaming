@@ -13,8 +13,8 @@ public class APIExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(Exception exception) {
         switch (exception) {
             case NotFoundException e -> {
-                Log.debug(exception);
-                return Response.status(Response.Status.NOT_FOUND).entity(exception.toString()).build();
+                Log.debug(e);
+                return Response.status(Response.Status.NOT_FOUND).entity(e.toString()).build();
             }
             default -> {
                 Log.error(exception);

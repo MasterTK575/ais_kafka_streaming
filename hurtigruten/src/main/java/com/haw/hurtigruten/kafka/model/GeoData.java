@@ -5,7 +5,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode()
+@EqualsAndHashCode
 @ToString
 public class GeoData {
     private Long id;

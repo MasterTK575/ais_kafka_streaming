@@ -1,0 +1,1351 @@
+openapi: 3.0.0
+info:
+  description: OpenAPI 3.0 definitions for the data models used by aisstream.io.
+  title: Ais-Stream WebsocketObjects
+  version: 1.0.0
+servers:
+- url: /
+components:
+  schemas:
+    Error:
+      properties:
+        error:
+          type: string
+      required:
+      - error
+    AisMessageTypes:
+      enum:
+      - PositionReport
+      - UnknownMessage
+      - AddressedSafetyMessage
+      - AddressedBinaryMessage
+      - AidsToNavigationReport
+      - AssignedModeCommand
+      - BaseStationReport
+      - BinaryAcknowledge
+      - BinaryBroadcastMessage
+      - ChannelManagement
+      - CoordinatedUTCInquiry
+      - DataLinkManagementMessage
+      - DataLinkManagementMessageData
+      - ExtendedClassBPositionReport
+      - GroupAssignmentCommand
+      - GnssBroadcastBinaryMessage
+      - Interrogation
+      - LongRangeAisBroadcastMessage
+      - MultiSlotBinaryMessage
+      - SafetyBroadcastMessage
+      - ShipStaticData
+      - SingleSlotBinaryMessage
+      - StandardClassBPositionReport
+      - StandardSearchAndRescueAircraftReport
+      - StaticDataReport
+      type: string
+    AisStreamMessage:
+      properties:
+        MetaData:
+          type: object
+        MessageType:
+          $ref: '#/components/schemas/AisMessageTypes'
+        Message:
+          $ref: '#/components/schemas/AisStreamMessage_Message'
+      required:
+      - Message
+      - MessageType
+      - MetaData
+    SubscriptionMessage:
+      properties:
+        APIKey:
+          type: string
+        BoundingBoxes:
+          items:
+            items:
+              items:
+                format: double
+                type: number
+              type: array
+            type: array
+          type: array
+        FiltersShipMMSI:
+          items:
+            maxLength: 9
+            minLength: 9
+            type: string
+          type: array
+        FilterMessageTypes:
+          items:
+            $ref: '#/components/schemas/AisMessageTypes'
+          type: array
+      required:
+      - APIKey
+      - BoundingBoxes
+    PositionReport:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        NavigationalStatus:
+          type: integer
+        RateOfTurn:
+          type: integer
+        Sog:
+          format: double
+          type: number
+        PositionAccuracy:
+          type: boolean
+        Longitude:
+          format: double
+          type: number
+        Latitude:
+          format: double
+          type: number
+        Cog:
+          format: double
+          type: number
+        TrueHeading:
+          type: integer
+        Timestamp:
+          type: integer
+        SpecialManoeuvreIndicator:
+          type: integer
+        Spare:
+          type: integer
+        Raim:
+          type: boolean
+        CommunicationState:
+          type: integer
+      required:
+      - Cog
+      - CommunicationState
+      - Latitude
+      - Longitude
+      - MessageID
+      - NavigationalStatus
+      - PositionAccuracy
+      - Raim
+      - RateOfTurn
+      - RepeatIndicator
+      - Sog
+      - Spare
+      - SpecialManoeuvreIndicator
+      - Timestamp
+      - TrueHeading
+      - UserID
+      - Valid
+    BaseStationReport:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        UtcYear:
+          type: integer
+        UtcMonth:
+          type: integer
+        UtcDay:
+          type: integer
+        UtcHour:
+          type: integer
+        UtcMinute:
+          type: integer
+        UtcSecond:
+          type: integer
+        PositionAccuracy:
+          type: boolean
+        Longitude:
+          format: double
+          type: number
+        Latitude:
+          format: double
+          type: number
+        FixType:
+          type: integer
+        LongRangeEnable:
+          type: boolean
+        Spare:
+          type: integer
+        Raim:
+          type: boolean
+        CommunicationState:
+          type: integer
+      required:
+      - CommunicationState
+      - FixType
+      - Latitude
+      - LongRangeEnable
+      - Longitude
+      - MessageID
+      - PositionAccuracy
+      - Raim
+      - RepeatIndicator
+      - Spare
+      - UserID
+      - UtcDay
+      - UtcHour
+      - UtcMinute
+      - UtcMonth
+      - UtcSecond
+      - UtcYear
+      - Valid
+    ShipStaticData:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        AisVersion:
+          type: integer
+        ImoNumber:
+          type: integer
+        CallSign:
+          type: string
+        Name:
+          type: string
+        Type:
+          type: integer
+        Dimension:
+          $ref: '#/components/schemas/ShipStaticData_Dimension'
+        FixType:
+          type: integer
+        Eta:
+          $ref: '#/components/schemas/ShipStaticData_Eta'
+        MaximumStaticDraught:
+          format: double
+          type: number
+        Destination:
+          type: string
+        Dte:
+          type: boolean
+        Spare:
+          type: boolean
+      required:
+      - AisVersion
+      - CallSign
+      - Destination
+      - Dimension
+      - Dte
+      - Eta
+      - FixType
+      - ImoNumber
+      - MaximumStaticDraught
+      - MessageID
+      - Name
+      - RepeatIndicator
+      - Spare
+      - Type
+      - UserID
+      - Valid
+    AddressedBinaryMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Sequenceinteger:
+          type: integer
+        DestinationID:
+          type: integer
+        Retransmission:
+          type: boolean
+        Spare:
+          type: boolean
+        ApplicationID:
+          $ref: '#/components/schemas/AddressedBinaryMessage_ApplicationID'
+        BinaryData:
+          type: string
+      required:
+      - ApplicationID
+      - BinaryData
+      - DestinationID
+      - MessageID
+      - RepeatIndicator
+      - Retransmission
+      - Sequenceinteger
+      - Spare
+      - UserID
+      - Valid
+    BinaryBroadcastMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare:
+          type: integer
+        ApplicationID:
+          $ref: '#/components/schemas/AddressedBinaryMessage_ApplicationID'
+        BinaryData:
+          type: string
+      required:
+      - ApplicationID
+      - BinaryData
+      - MessageID
+      - RepeatIndicator
+      - Spare
+      - UserID
+      - Valid
+    StandardSearchAndRescueAircraftReport:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Altitude:
+          type: integer
+        Sog:
+          format: double
+          type: number
+        PositionAccuracy:
+          type: boolean
+        Longitude:
+          format: double
+          type: number
+        Latitude:
+          format: double
+          type: number
+        Cog:
+          format: double
+          type: number
+        Timestamp:
+          type: integer
+        AltFromBaro:
+          type: boolean
+        Spare1:
+          type: integer
+        Dte:
+          type: boolean
+        Spare2:
+          type: integer
+        AssignedMode:
+          type: boolean
+        Raim:
+          type: boolean
+        CommunicationStateIsItdma:
+          type: boolean
+        CommunicationState:
+          type: integer
+      required:
+      - AltFromBaro
+      - Altitude
+      - AssignedMode
+      - Cog
+      - CommunicationState
+      - CommunicationStateIsItdma
+      - Dte
+      - Latitude
+      - Longitude
+      - MessageID
+      - PositionAccuracy
+      - Raim
+      - RepeatIndicator
+      - Sog
+      - Spare1
+      - Spare2
+      - Timestamp
+      - UserID
+      - Valid
+    CoordinatedUTCInquiry:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare1:
+          type: integer
+        DestinationID:
+          type: integer
+        Spare2:
+          type: integer
+      required:
+      - DestinationID
+      - MessageID
+      - RepeatIndicator
+      - Spare1
+      - Spare2
+      - UserID
+      - Valid
+    AddressedSafetyMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Sequenceinteger:
+          type: integer
+        DestinationID:
+          type: integer
+        Retransmission:
+          type: boolean
+        Spare:
+          type: boolean
+        Text:
+          type: string
+      required:
+      - DestinationID
+      - MessageID
+      - RepeatIndicator
+      - Retransmission
+      - Sequenceinteger
+      - Spare
+      - Text
+      - UserID
+      - Valid
+    SafetyBroadcastMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare:
+          type: integer
+        Text:
+          type: string
+      required:
+      - MessageID
+      - RepeatIndicator
+      - Spare
+      - Text
+      - UserID
+      - Valid
+    GnssBroadcastBinaryMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare1:
+          type: integer
+        Longitude:
+          format: double
+          type: number
+        Latitude:
+          format: double
+          type: number
+        Spare2:
+          type: integer
+        Data:
+          type: string
+      required:
+      - Data
+      - Latitude
+      - Longitude
+      - MessageID
+      - RepeatIndicator
+      - Spare1
+      - Spare2
+      - UserID
+      - Valid
+    StandardClassBPositionReport:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare1:
+          type: integer
+        Sog:
+          format: double
+          type: number
+        PositionAccuracy:
+          type: boolean
+        Longitude:
+          format: double
+          type: number
+        Latitude:
+          format: double
+          type: number
+        Cog:
+          format: double
+          type: number
+        TrueHeading:
+          type: integer
+        Timestamp:
+          type: integer
+        Spare2:
+          type: integer
+        ClassBUnit:
+          type: boolean
+        ClassBDisplay:
+          type: boolean
+        ClassBDsc:
+          type: boolean
+        ClassBBand:
+          type: boolean
+        ClassBMsg22:
+          type: boolean
+        AssignedMode:
+          type: boolean
+        Raim:
+          type: boolean
+        CommunicationStateIsItdma:
+          type: boolean
+        CommunicationState:
+          type: integer
+      required:
+      - AssignedMode
+      - ClassBBand
+      - ClassBDisplay
+      - ClassBDsc
+      - ClassBMsg22
+      - ClassBUnit
+      - Cog
+      - CommunicationState
+      - CommunicationStateIsItdma
+      - Latitude
+      - Longitude
+      - MessageID
+      - PositionAccuracy
+      - Raim
+      - RepeatIndicator
+      - Sog
+      - Spare1
+      - Spare2
+      - Timestamp
+      - TrueHeading
+      - UserID
+      - Valid
+    ExtendedClassBPositionReport:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare1:
+          type: integer
+        Sog:
+          format: double
+          type: number
+        PositionAccuracy:
+          type: boolean
+        Longitude:
+          format: double
+          type: number
+        Latitude:
+          format: double
+          type: number
+        Cog:
+          format: double
+          type: number
+        TrueHeading:
+          type: integer
+        Timestamp:
+          type: integer
+        Spare2:
+          type: integer
+        Name:
+          type: string
+        Type:
+          type: integer
+        Dimension:
+          $ref: '#/components/schemas/ShipStaticData_Dimension'
+        FixType:
+          type: integer
+        Raim:
+          type: boolean
+        Dte:
+          type: boolean
+        AssignedMode:
+          type: boolean
+        Spare3:
+          type: integer
+      required:
+      - AssignedMode
+      - Cog
+      - Dimension
+      - Dte
+      - FixType
+      - Latitude
+      - Longitude
+      - MessageID
+      - Name
+      - PositionAccuracy
+      - Raim
+      - RepeatIndicator
+      - Sog
+      - Spare1
+      - Spare2
+      - Spare3
+      - Timestamp
+      - TrueHeading
+      - Type
+      - UserID
+      - Valid
+    AidsToNavigationReport:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Type:
+          type: integer
+        Name:
+          type: string
+        PositionAccuracy:
+          type: boolean
+        Longitude:
+          format: double
+          type: number
+        Latitude:
+          format: double
+          type: number
+        Dimension:
+          $ref: '#/components/schemas/ShipStaticData_Dimension'
+        Fixtype:
+          type: integer
+        Timestamp:
+          type: integer
+        OffPosition:
+          type: boolean
+        AtoN:
+          type: integer
+        Raim:
+          type: boolean
+        VirtualAtoN:
+          type: boolean
+        AssignedMode:
+          type: boolean
+        Spare:
+          type: boolean
+        NameExtension:
+          type: string
+      required:
+      - AssignedMode
+      - AtoN
+      - Dimension
+      - Fixtype
+      - Latitude
+      - Longitude
+      - MessageID
+      - Name
+      - NameExtension
+      - OffPosition
+      - PositionAccuracy
+      - Raim
+      - RepeatIndicator
+      - Spare
+      - Timestamp
+      - Type
+      - UserID
+      - Valid
+      - VirtualAtoN
+    GroupAssignmentCommand:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare1:
+          type: integer
+        Longitude1:
+          format: double
+          type: number
+        Latitude1:
+          format: double
+          type: number
+        Longitude2:
+          format: double
+          type: number
+        Latitude2:
+          format: double
+          type: number
+        StationType:
+          type: integer
+        ShipType:
+          type: integer
+        Spare2:
+          type: integer
+        TxRxMode:
+          type: integer
+        ReportingInterval:
+          type: integer
+        QuietTime:
+          type: integer
+        Spare3:
+          type: integer
+      required:
+      - Latitude1
+      - Latitude2
+      - Longitude1
+      - Longitude2
+      - MessageID
+      - QuietTime
+      - RepeatIndicator
+      - ReportingInterval
+      - ShipType
+      - Spare1
+      - Spare2
+      - Spare3
+      - StationType
+      - TxRxMode
+      - UserID
+      - Valid
+    StaticDataReport:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Reserved:
+          type: integer
+        PartNumber:
+          type: boolean
+        ReportA:
+          $ref: '#/components/schemas/StaticDataReport_ReportA'
+        ReportB:
+          $ref: '#/components/schemas/StaticDataReport_ReportB'
+      required:
+      - MessageID
+      - PartNumber
+      - RepeatIndicator
+      - ReportA
+      - ReportB
+      - Reserved
+      - UserID
+      - Valid
+    LongRangeAisBroadcastMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        PositionAccuracy:
+          type: boolean
+        Raim:
+          type: boolean
+        NavigationalStatus:
+          type: integer
+        Longitude:
+          format: double
+          type: number
+        Latitude:
+          format: double
+          type: number
+        Sog:
+          format: double
+          type: number
+        Cog:
+          format: double
+          type: number
+        PositionLatency:
+          type: boolean
+        Spare:
+          type: boolean
+      required:
+      - Cog
+      - Latitude
+      - Longitude
+      - MessageID
+      - NavigationalStatus
+      - PositionAccuracy
+      - PositionLatency
+      - Raim
+      - RepeatIndicator
+      - Sog
+      - Spare
+      - UserID
+      - Valid
+    BinaryAcknowledge:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare:
+          type: integer
+        Destinations:
+          $ref: '#/components/schemas/BinaryAcknowledge_Destinations'
+      required:
+      - Destinations
+      - MessageID
+      - RepeatIndicator
+      - Spare
+      - UserID
+      - Valid
+    Interrogation:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare:
+          type: integer
+        Station1Msg1:
+          $ref: '#/components/schemas/Interrogation_Station1Msg1'
+        Station1Msg2:
+          $ref: '#/components/schemas/Interrogation_Station1Msg2'
+        Station2:
+          $ref: '#/components/schemas/Interrogation_Station2'
+      required:
+      - MessageID
+      - RepeatIndicator
+      - Spare
+      - Station1Msg1
+      - Station1Msg2
+      - Station2
+      - UserID
+      - Valid
+    AssignedModeCommand:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare:
+          type: integer
+        Commands:
+          $ref: '#/components/schemas/AssignedModeCommand_Commands'
+      required:
+      - Commands
+      - MessageID
+      - RepeatIndicator
+      - Spare
+      - UserID
+      - Valid
+    DataLinkManagementMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare:
+          type: integer
+        Data:
+          $ref: '#/components/schemas/DataLinkManagementMessage_Data'
+      required:
+      - Data
+      - MessageID
+      - RepeatIndicator
+      - Spare
+      - UserID
+      - Valid
+    ChannelManagement:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        Spare1:
+          type: integer
+        ChannelA:
+          type: integer
+        ChannelB:
+          type: integer
+        TxRxMode:
+          type: integer
+        LowPower:
+          type: boolean
+        Area:
+          $ref: '#/components/schemas/ChannelManagement_Area'
+        Unicast:
+          $ref: '#/components/schemas/ChannelManagement_Unicast'
+        IsAddressed:
+          type: boolean
+        BwA:
+          type: boolean
+        BwB:
+          type: boolean
+        TransitionalZoneSize:
+          type: integer
+        Spare4:
+          type: integer
+      required:
+      - Area
+      - BwA
+      - BwB
+      - ChannelA
+      - ChannelB
+      - IsAddressed
+      - LowPower
+      - MessageID
+      - RepeatIndicator
+      - Spare1
+      - Spare4
+      - TransitionalZoneSize
+      - TxRxMode
+      - Unicast
+      - UserID
+      - Valid
+    SingleSlotBinaryMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        DestinationIDValid:
+          type: boolean
+        ApplicationIDValid:
+          type: boolean
+        DestinationID:
+          type: integer
+        Spare:
+          type: integer
+        ApplicationID:
+          $ref: '#/components/schemas/AddressedBinaryMessage_ApplicationID'
+        Payload:
+          type: string
+      required:
+      - ApplicationID
+      - ApplicationIDValid
+      - DestinationID
+      - DestinationIDValid
+      - MessageID
+      - Payload
+      - RepeatIndicator
+      - Spare
+      - UserID
+      - Valid
+    MultiSlotBinaryMessage:
+      properties:
+        MessageID:
+          type: integer
+        RepeatIndicator:
+          type: integer
+        UserID:
+          type: integer
+        Valid:
+          type: boolean
+        DestinationIDValid:
+          type: boolean
+        ApplicationIDValid:
+          type: boolean
+        DestinationID:
+          type: integer
+        Spare1:
+          type: integer
+        ApplicationID:
+          $ref: '#/components/schemas/AddressedBinaryMessage_ApplicationID'
+        Payload:
+          type: string
+        Spare2:
+          type: integer
+        CommunicationStateIsItdma:
+          type: boolean
+        CommunicationState:
+          type: integer
+      required:
+      - ApplicationID
+      - ApplicationIDValid
+      - CommunicationState
+      - CommunicationStateIsItdma
+      - DestinationID
+      - DestinationIDValid
+      - MessageID
+      - Payload
+      - RepeatIndicator
+      - Spare1
+      - Spare2
+      - UserID
+      - Valid
+    UnknownMessage:
+      properties:
+        Error:
+          type: string
+    AisStreamMessage_Message:
+      properties:
+        PositionReport:
+          $ref: '#/components/schemas/PositionReport'
+        UnknownMessage:
+          $ref: '#/components/schemas/UnknownMessage'
+        AddressedSafetyMessage:
+          $ref: '#/components/schemas/AddressedSafetyMessage'
+        AddressedBinaryMessage:
+          $ref: '#/components/schemas/AddressedBinaryMessage'
+        AidsToNavigationReport:
+          $ref: '#/components/schemas/AidsToNavigationReport'
+        AssignedModeCommand:
+          $ref: '#/components/schemas/AssignedModeCommand'
+        BaseStationReport:
+          $ref: '#/components/schemas/BaseStationReport'
+        BinaryAcknowledge:
+          $ref: '#/components/schemas/BinaryAcknowledge'
+        BinaryBroadcastMessage:
+          $ref: '#/components/schemas/BinaryBroadcastMessage'
+        ChannelManagement:
+          $ref: '#/components/schemas/ChannelManagement'
+        CoordinatedUTCInquiry:
+          $ref: '#/components/schemas/CoordinatedUTCInquiry'
+        DataLinkManagementMessage:
+          $ref: '#/components/schemas/DataLinkManagementMessage'
+        DataLinkManagementMessageData:
+          $ref: '#/components/schemas/DataLinkManagementMessageData'
+        ExtendedClassBPositionReport:
+          $ref: '#/components/schemas/ExtendedClassBPositionReport'
+        GnssBroadcastBinaryMessage:
+          $ref: '#/components/schemas/GnssBroadcastBinaryMessage'
+        GroupAssignmentCommand:
+          $ref: '#/components/schemas/GroupAssignmentCommand'
+        Interrogation:
+          $ref: '#/components/schemas/Interrogation'
+        LongRangeAisBroadcastMessage:
+          $ref: '#/components/schemas/LongRangeAisBroadcastMessage'
+        MultiSlotBinaryMessage:
+          $ref: '#/components/schemas/MultiSlotBinaryMessage'
+        SafetyBroadcastMessage:
+          $ref: '#/components/schemas/SafetyBroadcastMessage'
+        ShipStaticData:
+          $ref: '#/components/schemas/ShipStaticData'
+        SingleSlotBinaryMessage:
+          $ref: '#/components/schemas/SingleSlotBinaryMessage'
+        StandardClassBPositionReport:
+          $ref: '#/components/schemas/StandardClassBPositionReport'
+        StandardSearchAndRescueAircraftReport:
+          $ref: '#/components/schemas/StandardSearchAndRescueAircraftReport'
+        StaticDataReport:
+          $ref: '#/components/schemas/StaticDataReport'
+      type: object
+    ShipStaticData_Dimension:
+      properties:
+        A:
+          type: integer
+        B:
+          type: integer
+        C:
+          type: integer
+        D:
+          type: integer
+      required:
+      - A
+      - B
+      - C
+      - D
+      type: object
+    ShipStaticData_Eta:
+      properties:
+        Month:
+          type: integer
+        Day:
+          type: integer
+        Hour:
+          type: integer
+        Minute:
+          type: integer
+      required:
+      - Day
+      - Hour
+      - Minute
+      - Month
+      type: object
+    AddressedBinaryMessage_ApplicationID:
+      properties:
+        Valid:
+          type: boolean
+        DesignatedAreaCode:
+          type: integer
+        FunctionIdentifier:
+          type: integer
+      required:
+      - DesignatedAreaCode
+      - FunctionIdentifier
+      - Valid
+      type: object
+    StaticDataReport_ReportA:
+      properties:
+        Valid:
+          type: boolean
+        Name:
+          type: string
+      required:
+      - Name
+      - Valid
+      type: object
+    StaticDataReport_ReportB:
+      properties:
+        Valid:
+          type: boolean
+        ShipType:
+          type: integer
+        VendorIDName:
+          type: string
+        VenderIDModel:
+          type: integer
+        VenderIDSerial:
+          type: integer
+        CallSign:
+          type: string
+        Dimension:
+          $ref: '#/components/schemas/ShipStaticData_Dimension'
+        FixType:
+          type: integer
+        Spare:
+          type: integer
+      required:
+      - CallSign
+      - Dimension
+      - FixType
+      - ShipType
+      - Spare
+      - Valid
+      - VenderIDModel
+      - VenderIDSerial
+      - VendorIDName
+      type: object
+    BinaryAcknowledge_Destinations_0:
+      properties:
+        Valid:
+          type: boolean
+        DestinationID:
+          type: integer
+        Sequenceinteger:
+          type: integer
+      required:
+      - DestinationID
+      - Sequenceinteger
+      - Valid
+      type: object
+    BinaryAcknowledge_Destinations:
+      properties:
+        "0":
+          $ref: '#/components/schemas/BinaryAcknowledge_Destinations_0'
+        "1":
+          $ref: '#/components/schemas/BinaryAcknowledge_Destinations_0'
+        "2":
+          $ref: '#/components/schemas/BinaryAcknowledge_Destinations_0'
+        "3":
+          $ref: '#/components/schemas/BinaryAcknowledge_Destinations_0'
+      required:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      type: object
+    Interrogation_Station1Msg1:
+      properties:
+        Valid:
+          type: boolean
+        StationID:
+          type: integer
+        MessageID:
+          type: integer
+        SlotOffset:
+          type: integer
+      required:
+      - MessageID
+      - SlotOffset
+      - StationID
+      - Valid
+      type: object
+    Interrogation_Station1Msg2:
+      properties:
+        Valid:
+          type: boolean
+        Spare:
+          type: integer
+        MessageID:
+          type: integer
+        SlotOffset:
+          type: integer
+      required:
+      - MessageID
+      - SlotOffset
+      - Spare
+      - Valid
+      type: object
+    Interrogation_Station2:
+      properties:
+        Valid:
+          type: boolean
+        Spare1:
+          type: integer
+        StationID:
+          type: integer
+        MessageID:
+          type: integer
+        SlotOffset:
+          type: integer
+        Spare2:
+          type: integer
+      required:
+      - MessageID
+      - SlotOffset
+      - Spare1
+      - Spare2
+      - StationID
+      - Valid
+      type: object
+    AssignedModeCommand_Commands_0:
+      properties:
+        Valid:
+          type: boolean
+        DestinationID:
+          type: integer
+        Offset:
+          type: integer
+        Increment:
+          type: integer
+      required:
+      - DestinationID
+      - Increment
+      - Offset
+      - Valid
+      type: object
+    AssignedModeCommand_Commands:
+      properties:
+        "0":
+          $ref: '#/components/schemas/AssignedModeCommand_Commands_0'
+        "1":
+          $ref: '#/components/schemas/AssignedModeCommand_Commands_0'
+      required:
+      - "0"
+      - "1"
+      type: object
+    DataLinkManagementMessage_Data_0:
+      properties:
+        Valid:
+          type: boolean
+        Offset:
+          type: integer
+        integerOfSlots:
+          type: integer
+        TimeOut:
+          type: integer
+        Increment:
+          type: integer
+      required:
+      - Increment
+      - Offset
+      - TimeOut
+      - Valid
+      - integerOfSlots
+      type: object
+    DataLinkManagementMessage_Data:
+      properties:
+        "0":
+          $ref: '#/components/schemas/DataLinkManagementMessage_Data_0'
+        "1":
+          $ref: '#/components/schemas/DataLinkManagementMessage_Data_0'
+        "2":
+          $ref: '#/components/schemas/DataLinkManagementMessage_Data_0'
+        "3":
+          $ref: '#/components/schemas/DataLinkManagementMessage_Data_0'
+      required:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      type: object
+    ChannelManagement_Area:
+      properties:
+        Longitude1:
+          format: double
+          type: number
+        Latitude1:
+          format: double
+          type: number
+        Longitude2:
+          format: double
+          type: number
+        Latitude2:
+          format: double
+          type: number
+      required:
+      - Latitude1
+      - Latitude2
+      - Longitude1
+      - Longitude2
+      type: object
+    ChannelManagement_Unicast:
+      properties:
+        AddressStation1:
+          type: integer
+        Spare2:
+          type: integer
+        AddressStation2:
+          type: integer
+        Spare3:
+          type: integer
+      required:
+      - AddressStation1
+      - AddressStation2
+      - Spare2
+      - Spare3
+      type: object
+
