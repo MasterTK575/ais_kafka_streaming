@@ -1,6 +1,7 @@
 package com.haw.producer.api;
 
 import com.haw.producer.ais.client.AisStreamClient;
+import com.haw.producer.ais.exceptions.NoAisStreamConnectionException;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.POST;
@@ -12,6 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.openapitools.client.model.AisMessageTypes;
 import org.openapitools.client.model.SubscriptionMessage;
 
 import java.net.URISyntaxException;
@@ -37,20 +39,19 @@ public class ProducerRestController {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     public void openConnection() throws URISyntaxException {
-        this.aisStreamClient.createWebSocketClient(new SubscriptionMessage()
+        this.aisStreamClient.connectToAisStream(new SubscriptionMessage()
                 .apIKey(apiKey).boundingBoxes(List.of(
                         Arrays.asList(
                                 Arrays.asList(-90.0, -180.0),
                                 Arrays.asList(90.0, 180.0)
                         )
                 )));
-        this.aisStreamClient.connect();
     }
 
     @Path("/close")
     @POST
     @Produces(MediaType.TEXT_PLAIN)
-    public void closeConnection()  {
-        this.aisStreamClient.close();
+    public void closeConnection() throws NoAisStreamConnectionException {
+        this.aisStreamClient.closeConnection();
     }
 }

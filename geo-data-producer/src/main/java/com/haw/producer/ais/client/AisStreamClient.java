@@ -1,5 +1,6 @@
 package com.haw.producer.ais.client;
 
+import com.haw.producer.ais.exceptions.NoAisStreamConnectionException;
 import com.haw.producer.ais.handler.AisStreamHandler;
 import com.haw.producer.ais.websocket.AisStreamWebsocketClient;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,30 +22,21 @@ public class AisStreamClient {
 
     private AisStreamWebsocketClient aisStreamWebsocketClient;
 
-    public void createWebSocketClient(SubscriptionMessage subscriptionMessage) throws URISyntaxException {
-        if (this.aisStreamWebsocketClient != null) {
-            this.close();
-        }
-        this.aisStreamWebsocketClient =  new AisStreamWebsocketClient(new URI(aisStreamsApiUri), subscriptionMessage, aisStreamHandler);
-    }
-
-    public void connect() {
-        if (this.aisStreamWebsocketClient == null) {
-            return;
-        }
+    public void connectToAisStream(SubscriptionMessage subscriptionMessage) throws URISyntaxException {
+        this.aisStreamWebsocketClient =  new AisStreamWebsocketClient(new URI(this.aisStreamsApiUri), subscriptionMessage, this.aisStreamHandler);
         this.aisStreamWebsocketClient.connect();
     }
 
-    public void close() {
+    public void closeConnection() throws NoAisStreamConnectionException {
         if (this.aisStreamWebsocketClient == null) {
-            return;
+            throw new NoAisStreamConnectionException();
         }
         this.aisStreamWebsocketClient.close();
     }
 
-    public void updateSubscription(SubscriptionMessage subscriptionMessage) {
+    public void updateAisStreamSubscription(SubscriptionMessage subscriptionMessage) throws NoAisStreamConnectionException {
         if (this.aisStreamWebsocketClient == null) {
-            return;
+            throw new NoAisStreamConnectionException();
         }
         this.aisStreamWebsocketClient.updateSubscription(subscriptionMessage);
     }

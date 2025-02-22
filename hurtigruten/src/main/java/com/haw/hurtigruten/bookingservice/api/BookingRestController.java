@@ -7,8 +7,9 @@ import com.haw.hurtigruten.bookingservice.exceptions.BookingAlreadyConfirmedExce
 import com.haw.hurtigruten.bookingservice.exceptions.BookingNotFoundException;
 import com.haw.hurtigruten.bookingservice.exceptions.CustomerNotFoundException;
 import com.haw.hurtigruten.bookingservice.services.BookingService;
-import com.haw.hurtigruten.kafka.resource.GeoDataProcessor;
+import com.haw.hurtigruten.kafka.resource.AisDataConsumer;
 import io.smallrye.mutiny.Multi;
+import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -19,7 +20,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.openapitools.client.model.AisStreamMessage;
+import org.openapitools.client.custom.AisStreamAggregation;
 
 import java.util.List;
 
@@ -32,13 +33,13 @@ public class BookingRestController {
     BookingService bookingService;
 
     @Inject
-    GeoDataProcessor geoDataProcessor;
+    AisDataConsumer aisDataConsumer;
 
     @GET
     @Path("/geo-data")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    public Multi<AisStreamMessage> getGeoData() {
-        return geoDataProcessor.getAisStreamMessages();
+    public Multi<Record<Long, AisStreamAggregation>> getGeoData() {
+        return aisDataConsumer.getAisStreamMessages();
     }
 
     @Operation(description = "Get all bookings")
