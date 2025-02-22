@@ -6,6 +6,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
+import java.net.URISyntaxException;
+
 @Provider
 public class APIExceptionMapper implements ExceptionMapper<Exception> {
 
@@ -15,6 +17,10 @@ public class APIExceptionMapper implements ExceptionMapper<Exception> {
             case NotFoundException e -> {
                 Log.debug(e);
                 return Response.status(Response.Status.NOT_FOUND).entity(e.toString()).build();
+            }
+            case URISyntaxException e -> {
+                Log.error(e);
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(e.toString()).build();
             }
             default -> {
                 Log.error(exception);
