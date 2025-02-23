@@ -1,12 +1,11 @@
 package com.haw.producer.ais.handler;
 
+import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.openapitools.client.model.AisMessageTypes;
 import org.openapitools.client.model.AisStreamMessage;
 import org.openapitools.client.model.Error;
-import io.smallrye.reactive.messaging.kafka.Record;
 
 import java.util.Map;
 
@@ -20,7 +19,6 @@ public class AisStreamHandler {
 
     public void handleAisStreamMessage(AisStreamMessage aisStreamMessage) {
         this.aisMessageEmitter.send(this.createRecord(aisStreamMessage));
-        System.out.println("MMSI: " + this.extractMetaDataValue(aisStreamMessage, MMSI));
    }
 
    public void handleAisStreamError(Error error) {
