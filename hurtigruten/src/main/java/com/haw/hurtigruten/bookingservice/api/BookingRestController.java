@@ -7,20 +7,18 @@ import com.haw.hurtigruten.bookingservice.exceptions.BookingAlreadyConfirmedExce
 import com.haw.hurtigruten.bookingservice.exceptions.BookingNotFoundException;
 import com.haw.hurtigruten.bookingservice.exceptions.CustomerNotFoundException;
 import com.haw.hurtigruten.bookingservice.services.BookingService;
-import com.haw.hurtigruten.kafka.resource.AisDataConsumer;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.openapitools.client.custom.AisStreamAggregation;
 
 import java.util.List;
 
@@ -32,30 +30,22 @@ public class BookingRestController {
     @Inject
     BookingService bookingService;
 
-    @Inject
-    AisDataConsumer aisDataConsumer;
-
-    @GET
-    @Path("/geo-data")
-    @Produces(MediaType.SERVER_SENT_EVENTS)
-    public Multi<Record<Long, AisStreamAggregation>> getGeoData() {
-        return aisDataConsumer.getAisStreamMessages();
-    }
-
     @Operation(description = "Get all bookings")
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "Successfully retrieved bookings"),
-    })
+    @APIResponses(
+            value = {
+                @APIResponse(responseCode = "200", description = "Successfully retrieved bookings"),
+            })
     @GET
     public List<Booking> getBookings() {
         return bookingService.getAllBookings();
     }
 
     @Operation(description = "Get a single booking")
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "Successfully retrieved booking"),
-            @APIResponse(responseCode = "404", description = "Booking not found")
-    })
+    @APIResponses(
+            value = {
+                @APIResponse(responseCode = "200", description = "Successfully retrieved booking"),
+                @APIResponse(responseCode = "404", description = "Booking not found")
+            })
     @Path("/{bookingId:[\\d]+}")
     @GET
     public Booking getBooking(Long bookingId) throws BookingNotFoundException {
@@ -63,14 +53,16 @@ public class BookingRestController {
     }
 
     @Operation(description = "Add a booking to a customer")
-    @APIResponses(value = {
-            @APIResponse(responseCode = "201", description = "Successfully added booking to customer"),
-            @APIResponse(responseCode = "404", description = "Customer is not found"),
-            @APIResponse(responseCode = "400", description = "Invalid booking data")
-    })
+    @APIResponses(
+            value = {
+                @APIResponse(responseCode = "201", description = "Successfully added booking to customer"),
+                @APIResponse(responseCode = "404", description = "Customer is not found"),
+                @APIResponse(responseCode = "400", description = "Invalid booking data")
+            })
     @Path("/add/{customerId:[\\d]+}")
     @POST
-    public Response addBooking(Long customerId, @Valid BookingCreateDTO bookingCreateDTO) throws CustomerNotFoundException {
+    public Response addBooking(Long customerId, @Valid BookingCreateDTO bookingCreateDTO)
+            throws CustomerNotFoundException {
         Booking booking = bookingService.addBooking(customerId, bookingCreateDTO);
         return Response.status(Response.Status.CREATED)
                 .entity(new IdDTO(booking.getId()))
@@ -78,11 +70,12 @@ public class BookingRestController {
     }
 
     @Operation(description = "Confirm a booking")
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "Booking successfully confirmed"),
-            @APIResponse(responseCode = "400", description = "Booking was already confirmed"),
-            @APIResponse(responseCode = "404", description = "Booking not found")
-    })
+    @APIResponses(
+            value = {
+                @APIResponse(responseCode = "200", description = "Booking successfully confirmed"),
+                @APIResponse(responseCode = "400", description = "Booking was already confirmed"),
+                @APIResponse(responseCode = "404", description = "Booking not found")
+            })
     @Path("/{bookingId:[\\d]+}/confirm")
     @PUT
     public Response confirmBooking(Long bookingId) throws BookingNotFoundException, BookingAlreadyConfirmedException {

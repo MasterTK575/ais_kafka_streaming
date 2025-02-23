@@ -1,5 +1,6 @@
 package org.openapitools.client.custom;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,19 +17,24 @@ import java.util.Map;
 @Getter
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@JsonSerialize
 public class AisStreamAggregation {
     @EqualsAndHashCode.Include
     private long MMSI;
 
     private final Map<AisMessageTypes, Integer> messageTypes = new HashMap<>();
-    private final List<PositionInformation> positions = new ArrayList<>();
+    private final List<PositionInformation> positionsHistory = new ArrayList<>();
+    private PositionInformation currentPosition;
     private int messageCount;
 
     public AisStreamAggregation updateFrom(
             Long MMSI, AisStreamMessage aisStreamMessage, PositionInformation positionInformation) {
         if (MMSI != null) this.MMSI = MMSI;
         this.messageTypes.merge(aisStreamMessage.getMessageType(), 1, Integer::sum);
-        if (positionInformation != null) this.positions.add(positionInformation);
+        if (positionInformation != null) {
+            this.positionsHistory.add(positionInformation);
+            this.currentPosition = positionInformation;
+        }
         this.messageCount++;
         return this;
     }

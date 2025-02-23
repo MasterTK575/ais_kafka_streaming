@@ -1,7 +1,11 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter} from '@angular/core';
 import {LeafletModule} from "@bluehalo/ngx-leaflet";
 import {icon, LatLng, latLng, Layer, layerGroup, LayerGroup, Map, marker, point, polyline, tileLayer} from "leaflet";
 import {FormsModule} from "@angular/forms";
+import {AisDataService} from "../services/ais-data.service";
+import {AisStreamData} from "../models/ais-stream-aggregation";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {takeUntil} from "rxjs";
 
 @Component({
   selector: 'app-map',
@@ -16,6 +20,7 @@ export class MapComponent {
   protected latitude = 50.816875;
   protected longitude = 11.162109;
   protected formZoom = 5;
+  private closeConnection = new EventEmitter<void>();
 
   private shipMarkersGroup: LayerGroup = layerGroup();
   // Define our base layers so we can reference them multiple times
@@ -90,7 +95,9 @@ export class MapComponent {
     center: latLng([this.latitude, this.longitude])
   };
 
-  constructor(private changeDetector: ChangeDetectorRef) {
+  constructor(private readonly changeDetector: ChangeDetectorRef,
+              private readonly aisDataService: AisDataService,
+              private readonly destroyRef$: DestroyRef) {
   }
 
   protected onCenterChange(center: LatLng) {
@@ -111,5 +118,24 @@ export class MapComponent {
   protected requestAisData() {
     // TODO: send map bounds to the api
     // this.map?.getBounds();
+    const boundingBoxes = [this.buildBoundingBox()];
+    // this.aisDataService.updateAisSubscription({boundingBoxes});
+    this.aisDataService.getAisDataStream().pipe(takeUntilDestroyed(this.destroyRef$), takeUntil(this.closeConnection)).subscribe((aisStreamData: AisStreamData) => {
+      console.log(aisStreamData);
+    });
+  }
+
+  protected stopRequestingAisData() {
+    this.closeConnection.emit();
+  }
+
+  private buildBoundingBox(): number[][] {
+    const bounds = this.map?.getBounds();
+    if (!bounds) {
+      return []; // TODO handle this case better
+    }
+    const northWest = bounds.getNorthWest();
+    const southEast = bounds.getSouthEast();
+    return [[northWest.lat, northWest.lng], [southEast.lat, northWest.lng]];
   }
 }

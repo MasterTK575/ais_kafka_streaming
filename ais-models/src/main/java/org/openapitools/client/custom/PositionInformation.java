@@ -1,13 +1,20 @@
 package org.openapitools.client.custom;
 
-import lombok.Value;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.*;
 
-@Value
+@Setter
+@Getter
+@ToString
+@EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonSerialize
 public class PositionInformation {
-    double latitude;
-    double longitude;
-    double courseOverGround;
-    double speedOverGround;
-    int trueHeading;
-    int timeStamp;
+    private double latitude;
+    private double longitude;
+    private double courseOverGround;
+    private double speedOverGround;
+    private int trueHeading;
+    private int timeStamp;
 }
