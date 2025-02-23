@@ -1,6 +1,12 @@
+<div>{{ map?.getBounds()?.getCenter() }}</div>
+<button type="button"
+        class="btn btn-primary"
+        (click)="requestAisData()">Access Ais Data
+</button>
 <div class="map"
      leaflet
-     (leafletMapReady)="onMapReady($event)"
      [leafletOptions]="options"
-     [leafletLayersControl]="layersControl"
-></div>
+     [leafletLayers]="shipMarkers"
+     (leafletMapReady)="onMapReady($event)"
+     (leafletCenterChange)="onCenterChange($event)">
+</div>

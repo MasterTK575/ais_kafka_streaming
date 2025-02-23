@@ -1,16 +1,25 @@
-import {Component} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component} from '@angular/core';
 import {LeafletModule} from "@bluehalo/ngx-leaflet";
-import {icon, latLng, Map, marker, point, polyline, tileLayer} from "leaflet";
+import {icon, LatLng, latLng, Layer, layerGroup, LayerGroup, Map, marker, point, polyline, tileLayer} from "leaflet";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-map',
-  imports: [LeafletModule],
+  imports: [LeafletModule, FormsModule],
   templateUrl: './map.component.html',
-  styleUrl: './map.component.css'
+  styleUrl: './map.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapComponent {
+// TODO: change detection
+  protected map?: Map;
+  protected latitude = 50.816875;
+  protected longitude = 11.162109;
+  protected formZoom = 5;
+
+  private shipMarkersGroup: LayerGroup = layerGroup();
   // Define our base layers so we can reference them multiple times
-  streetMaps = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  openStreetMapBaseLayer = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     detectRetina: true,
     attribution: '&copy; OpenStreetMap contributors'
   });
@@ -55,7 +64,7 @@ export class MapComponent {
 
   layersControl = {
     baseLayers: {
-      'Street Maps': this.streetMaps,
+      'Street Maps': this.openStreetMapBaseLayer,
     },
     overlays: {
       'Mt. Rainier Summit': this.summit,
@@ -64,17 +73,43 @@ export class MapComponent {
     }
   };
 
+  shipMarkers: Layer[] = [this.paradise, this.summit, this.route];
+  // TODO: ship markers:
+  // subscribe to ais data observable
+  // each time record comes in, see if marker with mmsi already exists
+  // if not, create new marker and add to the layer group
+  // if so, update the marker's position
+  // also maybe ad an onclick callback to the marker?
+  // i.e. for zooming or doing something else: this.circle.on('add', () => { this.map.fitBounds(this.circle.getBounds()); });
+
+  layerGroup: LayerGroup = layerGroup(this.shipMarkers);
+
   options = {
-    layers: [this.streetMaps, this.route, this.summit, this.paradise],
-    zoom: 7,
-    center: latLng([46.879966, -121.726909])
+    layers: [this.openStreetMapBaseLayer],
+    zoom: this.formZoom,
+    center: latLng([this.latitude, this.longitude])
   };
 
+  constructor(private changeDetector: ChangeDetectorRef) {
+  }
+
+  protected onCenterChange(center: LatLng) {
+    // no actions needed, will update the view due to change detection
+  }
+
   protected onMapReady(map: Map) {
+    this.map = map;
+    this.changeDetector.detectChanges();
+    //map.addLayer(this.layerGroup);
     map.fitBounds(this.route.getBounds(), {
       padding: point(24, 24),
       maxZoom: 12,
       animate: true
     });
+  }
+
+  protected requestAisData() {
+    // TODO: send map bounds to the api
+    // this.map?.getBounds();
   }
 }
