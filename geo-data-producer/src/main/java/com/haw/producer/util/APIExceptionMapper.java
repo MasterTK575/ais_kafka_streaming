@@ -1,6 +1,5 @@
 package com.haw.producer.util;
 
-import com.haw.producer.ais.exceptions.NoAisStreamConnectionException;
 import io.quarkus.logging.Log;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
@@ -22,10 +21,6 @@ public class APIExceptionMapper implements ExceptionMapper<Exception> {
             case URISyntaxException e -> {
                 Log.error(e);
                 return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(e.toString()).build();
-            }
-            case NoAisStreamConnectionException e -> {
-                Log.error(e);
-                return Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build();
             }
             default -> {
                 Log.error(exception);
