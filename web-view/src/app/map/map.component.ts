@@ -1,12 +1,14 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef} from '@angular/core';
 import {LeafletModule} from "@bluehalo/ngx-leaflet";
-import {icon, LatLng, latLng, layerGroup, Map as LeafLetMap, Marker, marker, tileLayer} from "leaflet";
+import {LatLng, latLng, layerGroup, Map as LeafLetMap, Marker, tileLayer} from "leaflet";
 import {FormsModule} from "@angular/forms";
 import {AisDataService} from "../services/ais-data.service";
 import {AisStreamAggregation} from "../models/ais-stream-aggregation";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Subscription} from "rxjs";
 import {PositionInformation} from "../models/position-information";
+import randomColor from 'randomcolor';
+import "leaflet.boatmarker";
 
 @Component({
     selector: 'app-map',
@@ -18,7 +20,7 @@ import {PositionInformation} from "../models/position-information";
 export class MapComponent {
     protected leafLetMap?: LeafLetMap;
     private shipMarkersLayerGroup = layerGroup();
-    private shipMarkersMap = new Map<Number, Marker>();
+    private shipMarkersMap = new Map<Number, BoatMarker>();
     private aisStreamSubscription$: Subscription | undefined;
 
     // Leaflet map configuration
@@ -26,14 +28,18 @@ export class MapComponent {
         detectRetina: true,
         attribution: '&copy; OpenStreetMap contributors'
     });
+    private openSeaMapBaseLayer = tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
+        detectRetina: true,
+        attribution: '&copy; OpenSeaMap contributors'
+    });
     protected layersControl = {
         baseLayers: {
-            'Street Maps': this.openStreetMapBaseLayer,
+            'Street Map': this.openStreetMapBaseLayer,
         },
         overlays: {'Ships': this.shipMarkersLayerGroup}
     };
     protected options = {
-        layers: [this.openStreetMapBaseLayer],
+        layers: [this.openStreetMapBaseLayer, this.openSeaMapBaseLayer],
         zoom: 5,
         center: latLng([50.816875, 11.162109]) // starts over middle europe
     };
@@ -90,20 +96,19 @@ export class MapComponent {
         let shipMarker = this.shipMarkersMap.get(mmsi);
         if (shipMarker) {
             shipMarker.setLatLng([position.latitude, position.longitude]);
+            shipMarker.setHeading(position.trueHeading);
+            shipMarker.setSpeed(position.speedOverGround);
             return;
         }
 
-        // TODO: change marker icon
-        shipMarker = marker([position.latitude, position.longitude], {
-            icon: icon({
-                iconSize: [25, 41],
-                iconAnchor: [13, 41],
-                iconUrl: 'leaflet/marker-icon.png',
-                iconRetinaUrl: 'leaflet/marker-icon-2x.png',
-                shadowUrl: 'leaflet/marker-shadow.png'
-            })
+        shipMarker = L.boatMarker([position.latitude, position.longitude], {
+            color: randomColor(),
+            idleCircle: true,
         });
+        shipMarker.setHeading(position.trueHeading);
+        shipMarker.setSpeed(position.speedOverGround);
 
+        this.attachEventListener(shipMarker, mmsi, position);
         this.shipMarkersMap.set(mmsi, shipMarker);
         this.shipMarkersLayerGroup.addLayer(shipMarker);
     }
@@ -116,5 +121,22 @@ export class MapComponent {
         const northWest = bounds.getNorthWest();
         const southEast = bounds.getSouthEast();
         return [[northWest.lat, northWest.lng], [southEast.lat, southEast.lng]];
+    }
+
+    private attachEventListener(marker: Marker, mmsi: number, position: PositionInformation) {
+        marker.bindTooltip(`
+              <div>
+                <strong>MMSI:</strong> ${mmsi}<br>
+                <strong>Ship Name:</strong> ${mmsi}<br>
+                <strong>LatLng:</strong> (${position.latitude}, ${position.longitude})<br>
+                <strong>Heading:</strong> ${position.trueHeading}<br>
+                <strong>Speed:</strong> ${position.speedOverGround}<br>
+              </div>
+            `);
+
+        marker.on('click', () => {
+            this.leafLetMap?.setView(marker.getLatLng(), this.leafLetMap?.getZoom() + 1, {animate: true});
+            marker.openTooltip();
+        });
     }
 }
