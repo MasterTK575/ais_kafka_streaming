@@ -1,27 +1,26 @@
 import {Injectable} from '@angular/core';
 import {Observable} from "rxjs";
-import {AisStreamData} from "../models/ais-stream-aggregation";
+import {AisStreamAggregation} from "../models/ais-stream-aggregation";
+import {HttpClient} from "@angular/common/http";
+import {AisSubscriptionAction} from "../models/ais-subscription-message";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AisDataService {
 
+  // TODO: adjust this when using docker
   public readonly AIS_DATA_STREAM_URI = 'http://localhost:8080/ais-stream';
 
-  // constructor(private readonly httpClient: HttpClient) {
-  // } // TODO doesn't work yet...
+  constructor(private readonly httpClient: HttpClient) {
+  }
 
-  // TODO: doesn't quite work yet...
-  // localhost/:1 Access to resource at 'http://localhost:8080/ais-stream' from origin
-  // 'http://localhost:4200' has been blocked by CORS policy: No 'Access-Control-Allow-Origin'
-  // header is present on the requested resource.
-  public getAisDataStream(): Observable<AisStreamData> {
+  public subscribeToAisStream(): Observable<AisStreamAggregation> {
     return new Observable(observer => {
       const eventSource = new EventSource(this.AIS_DATA_STREAM_URI);
 
       eventSource.onmessage = event => {
-        const data: AisStreamData = JSON.parse(event.data);
+        const data: AisStreamAggregation = JSON.parse(event.data); // TODO error handling
         observer.next(data);
       };
 
@@ -33,7 +32,7 @@ export class AisDataService {
     });
   }
 
-  // public updateAisSubscription(subscriptionMessage: AisSubscriptionMessage): void {
-  //   this.httpClient.post(this.AIS_DATA_STREAM_URI, subscriptionMessage).subscribe(); // TODO
-  // }
+  public setOrUpdateAisStreamSubscription(aisSubscriptionAction: AisSubscriptionAction): Observable<any> {
+    return this.httpClient.post(this.AIS_DATA_STREAM_URI, aisSubscriptionAction);
+  }
 }

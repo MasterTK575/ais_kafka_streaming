@@ -1,7 +1,8 @@
-<div>{{ map?.getBounds()?.getCenter() }}</div>
+<div>NorthWest: {{ leafLetMap?.getBounds()?.getNorthWest() }}</div>
+<div>SouthEast: {{ leafLetMap?.getBounds()?.getSouthEast() }}</div>
 <button type="button"
         class="btn btn-primary"
-        (click)="requestAisData()">Access Ais Data
+        (click)="subscribeToOrUpdateAisStreamConnection()">Access Ais Data for current Box
 </button>
 <button type="button"
         class="btn btn-primary"
@@ -10,7 +11,7 @@
 <div class="map"
      leaflet
      [leafletOptions]="options"
-     [leafletLayers]="shipMarkers"
+     [leafletLayersControl]="layersControl"
      (leafletMapReady)="onMapReady($event)"
      (leafletCenterChange)="onCenterChange($event)">
 </div>

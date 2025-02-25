@@ -1,11 +1,13 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter} from '@angular/core';
 import {LeafletModule} from "@bluehalo/ngx-leaflet";
-import {icon, LatLng, latLng, Layer, layerGroup, LayerGroup, Map, marker, point, polyline, tileLayer} from "leaflet";
+import {icon, LatLng, latLng, layerGroup, Map as LeafLetMap, Marker, marker, polyline, tileLayer} from "leaflet";
 import {FormsModule} from "@angular/forms";
 import {AisDataService} from "../services/ais-data.service";
-import {AisStreamData} from "../models/ais-stream-aggregation";
+import {AisStreamAggregation} from "../models/ais-stream-aggregation";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {takeUntil} from "rxjs";
+import {PositionInformation} from "../models/position-information";
+import {AisSubscriptionAction} from "../models/ais-subscription-message";
 
 @Component({
   selector: 'app-map',
@@ -16,38 +18,18 @@ import {takeUntil} from "rxjs";
 })
 export class MapComponent {
 // TODO: change detection
-  protected map?: Map;
+  protected leafLetMap?: LeafLetMap;
   protected latitude = 50.816875;
   protected longitude = 11.162109;
   protected formZoom = 5;
   private closeConnection = new EventEmitter<void>();
+  private shipMarkersLayerGroup = layerGroup();
+  private shipMarkersMap = new Map<Number, Marker>();
 
-  private shipMarkersGroup: LayerGroup = layerGroup();
   // Define our base layers so we can reference them multiple times
   openStreetMapBaseLayer = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     detectRetina: true,
     attribution: '&copy; OpenStreetMap contributors'
-  });
-
-  // Marker for the top of Mt. Ranier
-  summit = marker([46.8523, -121.7603], {
-    icon: icon({
-      iconSize: [25, 41],
-      iconAnchor: [13, 41],
-      iconUrl: 'leaflet/marker-icon.png',
-      shadowUrl: 'leaflet/marker-shadow.png'
-    })
-  });
-
-  // Marker for the parking lot at the base of Mt. Ranier trails
-  paradise = marker([46.78465227596462, -121.74141269177198], {
-    icon: icon({
-      iconSize: [25, 41],
-      iconAnchor: [13, 41],
-      iconUrl: 'leaflet/marker-icon.png',
-      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
-      shadowUrl: 'leaflet/marker-shadow.png'
-    })
   });
 
   // Path from paradise to summit - most points omitted from this example for brevity
@@ -67,29 +49,19 @@ export class MapComponent {
     [46.85290292836726, -121.76049157977104],
     [46.8528160918504, -121.76042997278273]]);
 
-  layersControl = {
+  protected layersControl = {
     baseLayers: {
       'Street Maps': this.openStreetMapBaseLayer,
     },
-    overlays: {
-      'Mt. Rainier Summit': this.summit,
-      'Mt. Rainier Paradise Start': this.paradise,
-      'Mt. Rainier Climb Route': this.route
-    }
+    overlays: {'Ships': this.shipMarkersLayerGroup}
   };
 
-  shipMarkers: Layer[] = [this.paradise, this.summit, this.route];
   // TODO: ship markers:
-  // subscribe to ais data observable
-  // each time record comes in, see if marker with mmsi already exists
-  // if not, create new marker and add to the layer group
-  // if so, update the marker's position
+  // maybe add a route (polyline)? to show the history?
   // also maybe ad an onclick callback to the marker?
   // i.e. for zooming or doing something else: this.circle.on('add', () => { this.map.fitBounds(this.circle.getBounds()); });
 
-  layerGroup: LayerGroup = layerGroup(this.shipMarkers);
-
-  options = {
+  protected options = {
     layers: [this.openStreetMapBaseLayer],
     zoom: this.formZoom,
     center: latLng([this.latitude, this.longitude])
@@ -104,38 +76,80 @@ export class MapComponent {
     // no actions needed, will update the view due to change detection
   }
 
-  protected onMapReady(map: Map) {
-    this.map = map;
+  protected onMapReady(leafLetMap: LeafLetMap) {
+    this.leafLetMap = leafLetMap;
     this.changeDetector.detectChanges();
-    //map.addLayer(this.layerGroup);
-    map.fitBounds(this.route.getBounds(), {
-      padding: point(24, 24),
-      maxZoom: 12,
-      animate: true
-    });
+    this.leafLetMap.addLayer(this.shipMarkersLayerGroup);
+    // leafLetMap.fitBounds(this.route.getBounds(), {
+    //   padding: point(24, 24),
+    //   maxZoom: 12,
+    //   animate: true
+    // });
   }
 
-  protected requestAisData() {
-    // TODO: send map bounds to the api
-    // this.map?.getBounds();
-    const boundingBoxes = [this.buildBoundingBox()];
-    // this.aisDataService.updateAisSubscription({boundingBoxes});
-    this.aisDataService.getAisDataStream().pipe(takeUntilDestroyed(this.destroyRef$), takeUntil(this.closeConnection)).subscribe((aisStreamData: AisStreamData) => {
+  protected subscribeToOrUpdateAisStreamConnection() {
+    const boundingBox = this.buildBoundingBox();
+    if (!boundingBox) {
+      console.error('Could not build bounding box');
+      return;
+    }
+    this.aisDataService.setOrUpdateAisStreamSubscription(this.buildAisSubscriptionAction(true, boundingBox)).pipe(takeUntilDestroyed(this.destroyRef$)).subscribe();
+    this.aisDataService.subscribeToAisStream().pipe(takeUntilDestroyed(this.destroyRef$), takeUntil(this.closeConnection)).subscribe((aisStreamData: AisStreamAggregation) => {
       console.log(aisStreamData);
+      if (!aisStreamData.currentPosition) {
+        return;
+      }
+      this.updateOrCreateMarker(aisStreamData.mmsi, aisStreamData.currentPosition);
     });
   }
 
   protected stopRequestingAisData() {
     this.closeConnection.emit();
+    this.aisDataService.setOrUpdateAisStreamSubscription(this.buildAisSubscriptionAction(false)).pipe(takeUntilDestroyed(this.destroyRef$)).subscribe();
   }
 
-  private buildBoundingBox(): number[][] {
-    const bounds = this.map?.getBounds();
+  private updateOrCreateMarker(mmsi: number, position: PositionInformation): void {
+    let shipMarker = this.shipMarkersMap.get(mmsi);
+    if (shipMarker) {
+      shipMarker.setLatLng([position.latitude, position.longitude]);
+      return;
+    }
+
+    // TODO: change marker icon
+    shipMarker = marker([position.latitude, position.longitude], {
+      icon: icon({
+        iconSize: [25, 41],
+        iconAnchor: [13, 41],
+        iconUrl: 'leaflet/marker-icon.png',
+        iconRetinaUrl: 'leaflet/marker-icon-2x.png',
+        shadowUrl: 'leaflet/marker-shadow.png'
+      })
+    });
+
+    this.shipMarkersMap.set(mmsi, shipMarker);
+    this.shipMarkersLayerGroup.addLayer(shipMarker);
+  }
+
+  private buildBoundingBox(): number[][] | undefined {
+    const bounds = this.leafLetMap?.getBounds();
     if (!bounds) {
-      return []; // TODO handle this case better
+      return undefined;
     }
     const northWest = bounds.getNorthWest();
     const southEast = bounds.getSouthEast();
     return [[northWest.lat, northWest.lng], [southEast.lat, northWest.lng]];
   }
+
+  private buildAisSubscriptionAction(keepAlive = true, boundingBox?: number[][]): AisSubscriptionAction {
+    return keepAlive && boundingBox ? {
+      keepAlive,
+      aisSubscriptionMessage: {
+        apIKey: '',
+        boundingBoxes: [boundingBox]
+      }
+    } : {
+      keepAlive,
+      aisSubscriptionMessage: null,
+    }
+  };
 }

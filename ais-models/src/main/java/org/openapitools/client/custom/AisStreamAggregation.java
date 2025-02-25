@@ -20,17 +20,22 @@ import java.util.Map;
 @JsonSerialize
 public class AisStreamAggregation {
     @EqualsAndHashCode.Include
-    private long MMSI;
+    private long mmsi;
 
-    private final Map<AisMessageTypes, Integer> messageTypes = new HashMap<>();
+    private final Map<AisMessageTypes, List<AisStreamMessage>> orderedMessages = new HashMap<>();
     private final List<PositionInformation> positionsHistory = new ArrayList<>();
     private PositionInformation currentPosition;
     private int messageCount;
 
     public AisStreamAggregation updateFrom(
-            Long MMSI, AisStreamMessage aisStreamMessage, PositionInformation positionInformation) {
-        if (MMSI != null) this.MMSI = MMSI;
-        this.messageTypes.merge(aisStreamMessage.getMessageType(), 1, Integer::sum);
+            Long mmsi, AisStreamMessage aisStreamMessage, PositionInformation positionInformation) {
+        if (mmsi == null) {
+            throw new IllegalArgumentException("MMSI must not be null");
+        }
+        this.mmsi = mmsi;
+        this.orderedMessages
+                .computeIfAbsent(aisStreamMessage.getMessageType(), k -> new ArrayList<>())
+                .add(aisStreamMessage);
         if (positionInformation != null) {
             this.positionsHistory.add(positionInformation);
             this.currentPosition = positionInformation;

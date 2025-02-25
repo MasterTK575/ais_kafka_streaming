@@ -1,11 +1,9 @@
 import {PositionInformation} from "./position-information";
 
 export interface AisStreamAggregation {
-  MMSI: number;
-  messageTypes: { [key: string]: number };
+  mmsi: number;
+  orderedMessages: { [key: string]: any[] };
   positionsHistory: PositionInformation[];
-  currentPosition: PositionInformation;
+  currentPosition: PositionInformation | null;
   messageCount: number;
 }
-
-export type AisStreamData = Record<number, AisStreamAggregation>;
