@@ -1,10 +1,10 @@
 package org.openapitools.client.custom;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
-import org.openapitools.client.model.SubscriptionMessage;
+import org.openapitools.client.model.AisMessageTypes;
 
-import javax.annotation.CheckForNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Setter
 @Getter
@@ -12,10 +12,9 @@ import javax.annotation.CheckForNull;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonSerialize
 public class SubscriptionAction {
-    private boolean keepAlive;
-
-    @CheckForNull
-    private SubscriptionMessage subscriptionMessage;
+    private boolean closeConnection = false;
+    private List<List<List<Double>>> boundingBoxes = new ArrayList<>();
+    private List<String> filtersShipMMSI = new ArrayList<>();
+    private List<AisMessageTypes> filterMessageTypes = new ArrayList<>();
 }
