@@ -3,11 +3,11 @@ import {RouterOutlet} from '@angular/router';
 import {MapComponent} from "./map/map.component";
 
 @Component({
-  selector: 'app-root',
-  imports: [RouterOutlet, MapComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+    selector: 'app-root',
+    imports: [RouterOutlet, MapComponent],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'web-view';
+    title = 'web-view';
 }

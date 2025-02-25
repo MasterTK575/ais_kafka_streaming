@@ -2,11 +2,15 @@
 <div>SouthEast: {{ leafLetMap?.getBounds()?.getSouthEast() }}</div>
 <button type="button"
         class="btn btn-primary"
-        (click)="subscribeToOrUpdateAisStreamConnection()">Access Ais Data for current Box
+        (click)="subscribeToOrUpdateAisStreamConnection()">Stream Ais Data
 </button>
 <button type="button"
         class="btn btn-primary"
-        (click)="stopRequestingAisData()">Stop
+        (click)="clearMarkers()">Remove Markers
+</button>
+<button type="button"
+        class="btn btn-primary"
+        (click)="stopRequestingAisData()">Stop Streaming
 </button>
 <div class="map"
      leaflet
