@@ -1,6 +1,7 @@
 package com.haw.producer.ais.websocket;
 
 import com.haw.producer.ais.handler.AisStreamHandler;
+import io.quarkus.logging.Log;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.openapitools.client.model.AisStreamMessage;
@@ -20,7 +21,8 @@ public class AisStreamWebsocketClient extends WebSocketClient {
     private final AisStreamHandler aisStreamHandler;
     private SubscriptionMessage subscriptionMessage;
 
-    public AisStreamWebsocketClient(URI serverURI, SubscriptionMessage subscriptionMessage, AisStreamHandler aisStreamHandler) {
+    public AisStreamWebsocketClient(
+            URI serverURI, SubscriptionMessage subscriptionMessage, AisStreamHandler aisStreamHandler) {
         super(serverURI);
         this.subscriptionMessage = subscriptionMessage;
         this.aisStreamHandler = aisStreamHandler;
@@ -45,16 +47,15 @@ public class AisStreamWebsocketClient extends WebSocketClient {
             AisStreamMessage aisStreamMessage = AisStreamMessage.fromJson(jsonString);
             this.aisStreamHandler.handleAisStreamMessage(aisStreamMessage);
             return;
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
 
         try {
             Error error = Error.fromJson(jsonString);
             this.aisStreamHandler.handleAisStreamError(error);
         } catch (IOException ex) {
-            // TODO log exception
-            ex.printStackTrace();
+            Log.error("An error occurred while parsing ais message {}", ex);
         }
-
     }
 
     @Override
@@ -65,14 +66,11 @@ public class AisStreamWebsocketClient extends WebSocketClient {
     @Override
     public void onClose(int code, String reason, boolean remote) {
         // The close codes are documented in class org.java_websocket.framing.CloseFrame
-        System.out.println(
-                "Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: "
-                        + reason);
+        Log.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: " + reason);
     }
 
     @Override
     public void onError(Exception ex) {
-        // TODO log exception
-        ex.printStackTrace();
+        Log.error("An error occurred in the websocket connection {}", ex);
     }
 }

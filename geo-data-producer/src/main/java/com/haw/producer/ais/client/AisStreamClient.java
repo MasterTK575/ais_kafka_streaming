@@ -23,6 +23,7 @@ public class AisStreamClient {
 
     public void connectToOrUpdateAisStream(SubscriptionMessage subscriptionMessage) throws URISyntaxException {
         if (this.aisStreamWebsocketClient != null) {
+            Log.info(String.format("Updating AisStream subscription %s", subscriptionMessage));
             this.aisStreamWebsocketClient.updateSubscription(subscriptionMessage);
             return;
         }
@@ -30,13 +31,15 @@ public class AisStreamClient {
         this.aisStreamWebsocketClient = new AisStreamWebsocketClient(
                 new URI(this.aisStreamsApiUri), subscriptionMessage, this.aisStreamHandler);
         this.aisStreamWebsocketClient.connect();
+        Log.info(String.format("Connected to AisStream with subscription %s", subscriptionMessage));
     }
 
     public void closeConnection() {
         if (this.aisStreamWebsocketClient == null) {
-            Log.debugf("No AIS stream connection to close");
+            Log.info("No AisStream connection to close");
             return;
         }
+        Log.info("Closing AisStream connection");
         this.aisStreamWebsocketClient.close();
         this.aisStreamWebsocketClient = null;
     }

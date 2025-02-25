@@ -21,15 +21,22 @@ public class AisStreamSubscriptionGateway {
     private final AisStreamClient aisStreamClient;
 
     @Incoming("ais-subscriptions")
-    public void handleAisSubscriptionAction(SubscriptionAction subscriptionAction)
-            throws URISyntaxException {
-        Log.debugf("Received subscription action: %s", subscriptionAction);
-        SubscriptionMessage subscriptionMessage = subscriptionAction.getSubscriptionMessage();
-        if (subscriptionAction.isKeepAlive() && subscriptionMessage != null) {
-            this.aisStreamClient.connectToOrUpdateAisStream(subscriptionMessage.apIKey(apiKey));
+    public void handleAisSubscriptionAction(SubscriptionAction subscriptionAction) throws URISyntaxException {
+        Log.info(String.format("Received subscription action: %s", subscriptionAction));
+        if (subscriptionAction.isCloseConnection()) {
+            this.aisStreamClient.closeConnection();
             return;
         }
 
-        this.aisStreamClient.closeConnection();
+        if (subscriptionAction.getBoundingBoxes().isEmpty()) {
+            Log.info(String.format("No bounding boxes provided, skipping SubscriptionAction: %s", subscriptionAction));
+            return;
+        }
+
+        this.aisStreamClient.connectToOrUpdateAisStream(new SubscriptionMessage()
+                .apIKey(apiKey)
+                .boundingBoxes(subscriptionAction.getBoundingBoxes())
+                .filtersShipMMSI(subscriptionAction.getFiltersShipMMSI())
+                .filterMessageTypes(subscriptionAction.getFilterMessageTypes()));
     }
 }
