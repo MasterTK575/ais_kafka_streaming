@@ -4,6 +4,7 @@ import io.quarkus.kafka.client.serialization.ObjectMapperSerde;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -11,16 +12,23 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueBytesStoreSupplier;
 import org.apache.kafka.streams.state.Stores;
+import org.openapitools.client.custom.AisShipData;
 import org.openapitools.client.custom.AisStreamAggregation;
+import org.openapitools.client.custom.NavigationalStatus;
 import org.openapitools.client.custom.PositionInformation;
 import org.openapitools.client.model.*;
+
+import java.time.Year;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Map;
 
 @ApplicationScoped
 public class TopologyProducer {
 
-    public static final String AIS_MESSAGES_STORE = "ais-messages-store";
     private static final String AIS_MESSAGES_RAW_TOPIC = "ais-messages-raw";
-    private static final String AIS_MESSAGES_PROCESSED_TOPIC = "ais-messages-processed";
+    private static final String AIS_SHIP_DATA_TOPIC = "ais-ship-data";
+    public static final String AIS_AGGREGATION_STORE = "ais-aggregation-store";
 
     @Produces
     public Topology buildTopology() {
@@ -29,21 +37,113 @@ public class TopologyProducer {
         ObjectMapperSerde<AisStreamMessage> aisStreamMessageSerde = new ObjectMapperSerde<>(AisStreamMessage.class);
         ObjectMapperSerde<AisStreamAggregation> aisStreamAggregationSerde =
                 new ObjectMapperSerde<>(AisStreamAggregation.class);
-        KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(AIS_MESSAGES_STORE);
+        ObjectMapperSerde<AisShipData> aisShipDataSerde = new ObjectMapperSerde<>(AisShipData.class);
+
+        KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(AIS_AGGREGATION_STORE);
 
         builder.stream(AIS_MESSAGES_RAW_TOPIC, Consumed.with(Serdes.Long(), aisStreamMessageSerde))
                 .groupByKey()
+                // null keys are automatically filtered out
                 .aggregate(
                         AisStreamAggregation::new,
-                        (MMSI, aisStreamMessage, aisStreamAggregation) -> aisStreamAggregation.updateFrom(
-                                MMSI, aisStreamMessage, this.getPositionInformation(aisStreamMessage)),
+                        (mmsi, aisStreamMessage, aisStreamAggregation) ->
+                                aisStreamAggregation.updateFrom(mmsi, aisStreamMessage),
                         Materialized.<Long, AisStreamAggregation>as(storeSupplier)
                                 .withKeySerde(Serdes.Long())
                                 .withValueSerde(aisStreamAggregationSerde))
                 .toStream()
-                .to(AIS_MESSAGES_PROCESSED_TOPIC, Produced.with(Serdes.Long(), aisStreamAggregationSerde));
+                .map((mmsi, aisStreamAggregation) ->
+                        KeyValue.pair(mmsi, this.getShipData(mmsi, aisStreamAggregation.getLastMessage())))
+                .to(AIS_SHIP_DATA_TOPIC, Produced.with(Serdes.Long(), aisShipDataSerde));
 
         return builder.build();
+    }
+
+    // TODO: use aggregation for internal storage and maybe interactive query
+
+    private AisShipData getShipData(long mmsi, AisStreamMessage aisStreamMessage) {
+        String shipName = null, timestamp = null;
+
+        Object metaDataObj = aisStreamMessage.getMetaData();
+        if (metaDataObj instanceof Map<?, ?> metaDataMap) {
+            Object metaDataObject = metaDataMap.get("ShipName");
+            if (metaDataObject instanceof String str) {
+                shipName = str.trim();
+            } else {
+                shipName = this.getShipName(aisStreamMessage);
+            }
+            metaDataObject = metaDataMap.get("time_utc");
+            if (metaDataObject instanceof String) {
+                timestamp = (String) metaDataObject;
+            }
+        }
+        String destination = this.getDestination(aisStreamMessage);
+        PositionInformation currentPosition = this.getPositionInformation(aisStreamMessage);
+        NavigationalStatus navigationalStatus = this.getNavigationalStatus(aisStreamMessage);
+        String eta = this.parseEta(aisStreamMessage);
+        return new AisShipData(mmsi, shipName, destination, eta, currentPosition, navigationalStatus, timestamp);
+    }
+
+    private String getShipName(AisStreamMessage aisStreamMessage) {
+        return switch (aisStreamMessage.getMessageType()) {
+            case AisMessageTypes.SHIP_STATIC_DATA -> {
+                ShipStaticData shipStaticData = aisStreamMessage.getMessage().getShipStaticData();
+                yield shipStaticData != null ? shipStaticData.getName().trim() : null;
+            }
+            case AisMessageTypes.STATIC_DATA_REPORT -> {
+                StaticDataReport staticDataReport =
+                        aisStreamMessage.getMessage().getStaticDataReport();
+                yield staticDataReport != null
+                        ? staticDataReport.getReportA().getName().trim()
+                        : null;
+            }
+            default -> null;
+        };
+    }
+
+    private String getDestination(AisStreamMessage aisStreamMessage) {
+        ShipStaticData shipStaticData = aisStreamMessage.getMessage().getShipStaticData();
+        return shipStaticData != null ? shipStaticData.getDestination().trim() : null;
+    }
+
+    /**
+     * @param aisStreamMessage The incoming AIS message.
+     * @return ETA String converted to system default zone, or null if not available.
+     */
+    private String parseEta(AisStreamMessage aisStreamMessage) {
+        ShipStaticData shipStaticData = aisStreamMessage.getMessage().getShipStaticData();
+        if (shipStaticData == null) {
+            return null;
+        }
+
+        int month = shipStaticData.getEta().getMonth();
+        int day = shipStaticData.getEta().getDay();
+        int hour = shipStaticData.getEta().getHour();
+        int minute = shipStaticData.getEta().getMinute();
+
+        // If critical field is zero, it usually indicates no ETA available
+        if (month == 0 || day == 0) {
+            return null;
+        }
+
+        // AIS ETA is expressed in UTC
+        ZoneId utcZone = ZoneId.of("UTC");
+        int currentYear = Year.now(utcZone).getValue();
+        ZonedDateTime etaDateTime = hour != 24
+                ? ZonedDateTime.of(currentYear, month, day, hour, minute, 0, 0, utcZone)
+                : ZonedDateTime.of(currentYear, month, day, 0, 0, 0, 0, utcZone).plusDays(1);
+
+        // If the constructed ETA is before now (in UTC), assume the ETA refers to the next year
+        if (etaDateTime.isBefore(ZonedDateTime.now(utcZone))) {
+            etaDateTime = etaDateTime.plusYears(1);
+        }
+
+        return etaDateTime.toInstant().atZone(ZoneId.systemDefault()).toString();
+    }
+
+    private NavigationalStatus getNavigationalStatus(AisStreamMessage aisStreamMessage) {
+        PositionReport positionReport = aisStreamMessage.getMessage().getPositionReport();
+        return positionReport != null ? NavigationalStatus.fromCode(positionReport.getNavigationalStatus()) : null;
     }
 
     /**
@@ -57,10 +157,8 @@ public class TopologyProducer {
                         ? new PositionInformation(
                                 positionReport.getLatitude(),
                                 positionReport.getLongitude(),
-                                positionReport.getCog(),
                                 positionReport.getSog(),
-                                positionReport.getTrueHeading(),
-                                positionReport.getTimestamp())
+                                this.getHeading(positionReport))
                         : null;
             }
             case AisMessageTypes.STANDARD_CLASS_B_POSITION_REPORT -> {
@@ -70,10 +168,8 @@ public class TopologyProducer {
                         ? new PositionInformation(
                                 standardClassBPositionReport.getLatitude(),
                                 standardClassBPositionReport.getLongitude(),
-                                standardClassBPositionReport.getCog(),
                                 standardClassBPositionReport.getSog(),
-                                standardClassBPositionReport.getTrueHeading(),
-                                standardClassBPositionReport.getTimestamp())
+                                this.getHeading(standardClassBPositionReport))
                         : null;
             }
             case AisMessageTypes.EXTENDED_CLASS_B_POSITION_REPORT -> {
@@ -83,13 +179,27 @@ public class TopologyProducer {
                         ? new PositionInformation(
                                 extendedClassBPositionReport.getLatitude(),
                                 extendedClassBPositionReport.getLongitude(),
-                                extendedClassBPositionReport.getCog(),
                                 extendedClassBPositionReport.getSog(),
-                                extendedClassBPositionReport.getTrueHeading(),
-                                extendedClassBPositionReport.getTimestamp())
+                                this.getHeading(extendedClassBPositionReport))
                         : null;
             }
             default -> null;
         };
+    }
+
+    private int getHeading(int trueHeading, Double cog) {
+        return trueHeading <= 360 ? trueHeading : cog.intValue();
+    }
+
+    private int getHeading(PositionReport positionReport) {
+        return this.getHeading(positionReport.getTrueHeading(), positionReport.getCog());
+    }
+
+    private int getHeading(ExtendedClassBPositionReport extendedClassBPositionReport) {
+        return this.getHeading(extendedClassBPositionReport.getTrueHeading(), extendedClassBPositionReport.getCog());
+    }
+
+    private int getHeading(StandardClassBPositionReport standardClassBPositionReport) {
+        return this.getHeading(standardClassBPositionReport.getTrueHeading(), standardClassBPositionReport.getCog());
     }
 }

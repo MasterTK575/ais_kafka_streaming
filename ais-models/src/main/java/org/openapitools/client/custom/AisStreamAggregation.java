@@ -23,24 +23,17 @@ public class AisStreamAggregation {
     private long mmsi;
 
     private final Map<AisMessageTypes, List<AisStreamMessage>> orderedMessages = new HashMap<>();
-    private final List<PositionInformation> positionsHistory = new ArrayList<>();
-    private PositionInformation currentPosition;
-    private int messageCount;
+    private AisStreamMessage lastMessage;
 
-    public AisStreamAggregation updateFrom(
-            Long mmsi, AisStreamMessage aisStreamMessage, PositionInformation positionInformation) {
-        if (mmsi == null) {
-            throw new IllegalArgumentException("MMSI must not be null");
+    public AisStreamAggregation updateFrom(Long mmsi, AisStreamMessage aisStreamMessage) {
+        if (mmsi == null || aisStreamMessage == null) {
+            throw new IllegalArgumentException("Parameter must not be null");
         }
         this.mmsi = mmsi;
         this.orderedMessages
                 .computeIfAbsent(aisStreamMessage.getMessageType(), k -> new ArrayList<>())
                 .add(aisStreamMessage);
-        if (positionInformation != null) {
-            this.positionsHistory.add(positionInformation);
-            this.currentPosition = positionInformation;
-        }
-        this.messageCount++;
+        lastMessage = aisStreamMessage;
         return this;
     }
 }

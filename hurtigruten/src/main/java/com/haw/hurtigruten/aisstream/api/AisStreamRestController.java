@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.jboss.resteasy.reactive.RestStreamElementType;
-import org.openapitools.client.custom.AisStreamAggregation;
+import org.openapitools.client.custom.AisShipData;
 import org.openapitools.client.custom.SubscriptionAction;
 
 @Path("/ais-stream")
@@ -23,7 +23,7 @@ public class AisStreamRestController {
     @GET
     @Produces(MediaType.SERVER_SENT_EVENTS) // not strictly necessary when using @RestStreamElementType
     @RestStreamElementType(MediaType.APPLICATION_JSON)
-    public Multi<AisStreamAggregation> getAisGeoDataStream() {
+    public Multi<AisShipData> getAisGeoDataStream() {
         return aisDataConsumer.getAisStreamMessages().map(Record::value);
     }
 

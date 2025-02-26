@@ -5,12 +5,12 @@ import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.Getter;
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.openapitools.client.custom.AisStreamAggregation;
+import org.openapitools.client.custom.AisShipData;
 
 @Getter
 @ApplicationScoped
 public class AisDataConsumer {
 
-    @Channel("ais-messages-processed")
-    Multi<Record<Long, AisStreamAggregation>> aisStreamMessages;
+    @Channel("ais-ship-data")
+    Multi<Record<Long, AisShipData>> aisStreamMessages;
 }
