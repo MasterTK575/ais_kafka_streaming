@@ -110,6 +110,9 @@ export class MapComponent {
         if (newAisShipData.shipName) {
             oldAisShipData.shipName = newAisShipData.shipName;
         }
+        if (newAisShipData.shipType) {
+            oldAisShipData.shipType = newAisShipData.shipType;
+        }
         if (newAisShipData.destination) {
             oldAisShipData.destination = newAisShipData.destination;
         }
@@ -158,6 +161,7 @@ export class MapComponent {
               <div>
                 <strong>MMSI:</strong> ${aisShipData.mmsi}<br>
                 <strong>Ship Name:</strong> ${aisShipData.shipName ?? "-"}<br>
+                <strong>Ship Type:</strong> ${aisShipData.shipType ?? "-"}<br>
                 <strong>Destination:</strong> ${aisShipData.destination ?? "-"}<br>
                 <strong>ETA:</strong> ${aisShipData.eta ?? "-"}<br>
                 <strong>LatLng:</strong> (${position.latitude}, ${position.longitude})<br>

@@ -3,14 +3,14 @@ import {Observable} from "rxjs";
 import {AisShipData} from "../models/ais-ship-data";
 import {HttpClient} from "@angular/common/http";
 import {AisSubscriptionAction} from "../models/ais-subscription-action";
+import {environment} from "../../environments/environemnt";
 
 @Injectable({
     providedIn: 'root',
 })
 export class AisDataService {
 
-    // TODO: adjust this when using docker
-    public readonly AIS_DATA_STREAM_URI = 'http://localhost:8080/ais-stream';
+    public readonly AIS_DATA_STREAM_URI = `${environment.aisStreamUri}/ais-stream`;
 
     constructor(private readonly httpClient: HttpClient) {
     }

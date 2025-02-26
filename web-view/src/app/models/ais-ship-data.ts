@@ -3,6 +3,7 @@ import {PositionInformation} from "./position-information";
 export interface AisShipData {
     mmsi: number;
     shipName: string | null;
+    shipType: string | null;
     destination: string | null;
     eta: string | null;
     currentPosition: PositionInformation | null;
