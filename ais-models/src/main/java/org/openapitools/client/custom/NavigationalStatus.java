@@ -32,7 +32,7 @@ public enum NavigationalStatus {
                 return status;
             }
         }
-        throw new IllegalArgumentException("Unknown code: " + code);
+        return NOT_DEFINED;
     }
 
     @Override

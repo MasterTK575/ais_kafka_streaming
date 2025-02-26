@@ -12,10 +12,7 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueBytesStoreSupplier;
 import org.apache.kafka.streams.state.Stores;
-import org.openapitools.client.custom.AisShipData;
-import org.openapitools.client.custom.AisStreamAggregation;
-import org.openapitools.client.custom.NavigationalStatus;
-import org.openapitools.client.custom.PositionInformation;
+import org.openapitools.client.custom.*;
 import org.openapitools.client.model.*;
 
 import java.time.Year;
@@ -79,9 +76,11 @@ public class TopologyProducer {
         }
         String destination = this.getDestination(aisStreamMessage);
         PositionInformation currentPosition = this.getPositionInformation(aisStreamMessage);
+        AisShipType shipType = this.getShipType(aisStreamMessage);
         NavigationalStatus navigationalStatus = this.getNavigationalStatus(aisStreamMessage);
         String eta = this.parseEta(aisStreamMessage);
-        return new AisShipData(mmsi, shipName, destination, eta, currentPosition, navigationalStatus, timestamp);
+        return new AisShipData(
+                mmsi, shipName, shipType, destination, eta, currentPosition, navigationalStatus, timestamp);
     }
 
     private String getShipName(AisStreamMessage aisStreamMessage) {
@@ -144,6 +143,23 @@ public class TopologyProducer {
     private NavigationalStatus getNavigationalStatus(AisStreamMessage aisStreamMessage) {
         PositionReport positionReport = aisStreamMessage.getMessage().getPositionReport();
         return positionReport != null ? NavigationalStatus.fromCode(positionReport.getNavigationalStatus()) : null;
+    }
+
+    private AisShipType getShipType(AisStreamMessage aisStreamMessage) {
+        return switch (aisStreamMessage.getMessageType()) {
+            case AisMessageTypes.SHIP_STATIC_DATA -> {
+                ShipStaticData shipStaticData = aisStreamMessage.getMessage().getShipStaticData();
+                yield shipStaticData != null ? AisShipType.fromCode(shipStaticData.getType()) : null;
+            }
+            case AisMessageTypes.STATIC_DATA_REPORT -> {
+                StaticDataReport staticDataReport =
+                        aisStreamMessage.getMessage().getStaticDataReport();
+                yield staticDataReport != null
+                        ? AisShipType.fromCode(staticDataReport.getReportB().getShipType())
+                        : null;
+            }
+            default -> null;
+        };
     }
 
     /**
