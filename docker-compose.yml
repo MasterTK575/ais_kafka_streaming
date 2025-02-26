@@ -10,7 +10,7 @@ services:
       QUARKUS_DATASOURCE_USERNAME: root
       QUARKUS_DATASOURCE_PASSWORD: root
       KAFKA_BOOTSTRAP_SERVERS: kafka:9093
-      # QUARKUS_HTTP_CORS_ORIGINS: http://localhost:4200 # edit this is you change the frontend port
+      QUARKUS_HTTP_CORS_ORIGINS: http://localhost:4200 # edit this is you change the frontend port
     ports:
       - "8080:8080"
     depends_on:
@@ -20,6 +20,8 @@ services:
 
   geo-data-producer:
     container_name: geo-data-producer
+    env_file:
+      - geo-data-producer/.env
     build:
       context: geo-data-producer
       dockerfile: src/main/docker/Dockerfile.jvm
@@ -44,15 +46,14 @@ services:
       - geo-data-producer
       - hurtigruten
 
-  # TODO: add angular frontend
   web-view:
     container_name: web-view
     build:
       context: web-view
     ports:
-      - "4200:80"  # Expose Angular via Nginx on port 4200
+      - "4200:80"
     environment:
-      AIS_STREAM_URI: http://hurtigruten:8080  # set url to hurtigruten service
+      AIS_STREAM_URI: http://localhost:8080  # set uri to hurtigruten port
     depends_on:
       - hurtigruten
 

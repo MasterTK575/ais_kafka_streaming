@@ -15,6 +15,7 @@ import org.apache.kafka.streams.state.Stores;
 import org.openapitools.client.custom.*;
 import org.openapitools.client.model.*;
 
+import java.time.DateTimeException;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -117,20 +118,19 @@ public class TopologyProducer {
 
         int month = shipStaticData.getEta().getMonth();
         int day = shipStaticData.getEta().getDay();
-        int hour = shipStaticData.getEta().getHour();
-        int minute = shipStaticData.getEta().getMinute();
-
-        // If critical field is zero, it usually indicates no ETA available
-        if (month == 0 || day == 0) {
-            return null;
-        }
+        int hour = shipStaticData.getEta().getHour() - 1;
+        int minute = shipStaticData.getEta().getMinute() - 1;
 
         // AIS ETA is expressed in UTC
         ZoneId utcZone = ZoneId.of("UTC");
         int currentYear = Year.now(utcZone).getValue();
-        ZonedDateTime etaDateTime = hour != 24
-                ? ZonedDateTime.of(currentYear, month, day, hour, minute, 0, 0, utcZone)
-                : ZonedDateTime.of(currentYear, month, day, 0, 0, 0, 0, utcZone).plusDays(1);
+        ZonedDateTime etaDateTime;
+        try {
+            etaDateTime = ZonedDateTime.of(currentYear, month, day, hour, minute, 0, 0, utcZone);
+        } catch (DateTimeException e) {
+            // Invalid date, assume no ETA available
+            return null;
+        }
 
         // If the constructed ETA is before now (in UTC), assume the ETA refers to the next year
         if (etaDateTime.isBefore(ZonedDateTime.now(utcZone))) {
