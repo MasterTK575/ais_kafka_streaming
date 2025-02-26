@@ -16,7 +16,6 @@ import org.openapitools.client.custom.*;
 import org.openapitools.client.model.*;
 
 import java.time.DateTimeException;
-import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -116,25 +115,23 @@ public class TopologyProducer {
             return null;
         }
 
-        int month = shipStaticData.getEta().getMonth();
-        int day = shipStaticData.getEta().getDay();
-        int hour = shipStaticData.getEta().getHour() - 1;
-        int minute = shipStaticData.getEta().getMinute() - 1;
+        ShipStaticDataEta eta = shipStaticData.getEta();
+        int month = eta.getMonth();
+        int day = eta.getDay();
+        int hour = eta.getHour();
+        int minute = eta.getMinute();
 
-        // AIS ETA is expressed in UTC
         ZoneId utcZone = ZoneId.of("UTC");
-        int currentYear = Year.now(utcZone).getValue();
         ZonedDateTime etaDateTime;
         try {
-            etaDateTime = ZonedDateTime.of(currentYear, month, day, hour, minute, 0, 0, utcZone);
+            etaDateTime = ZonedDateTime.now(utcZone)
+                    .plusMonths(month)
+                    .plusDays(day)
+                    .plusHours(hour)
+                    .plusMinutes(minute);
         } catch (DateTimeException e) {
             // Invalid date, assume no ETA available
             return null;
-        }
-
-        // If the constructed ETA is before now (in UTC), assume the ETA refers to the next year
-        if (etaDateTime.isBefore(ZonedDateTime.now(utcZone))) {
-            etaDateTime = etaDateTime.plusYears(1);
         }
 
         return etaDateTime.toInstant().atZone(ZoneId.systemDefault()).toString();
