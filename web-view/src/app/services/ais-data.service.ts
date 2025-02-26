@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from "rxjs";
-import {AisStreamAggregation} from "../models/ais-stream-aggregation";
+import {AisShipData} from "../models/ais-ship-data";
 import {HttpClient} from "@angular/common/http";
 import {AisSubscriptionAction} from "../models/ais-subscription-action";
 
@@ -15,12 +15,12 @@ export class AisDataService {
     constructor(private readonly httpClient: HttpClient) {
     }
 
-    public subscribeToAisStream(): Observable<AisStreamAggregation> {
+    public subscribeToAisStream(): Observable<AisShipData> {
         return new Observable(observer => {
             const eventSource = new EventSource(this.AIS_DATA_STREAM_URI);
 
             eventSource.onmessage = event => {
-                let data: AisStreamAggregation;
+                let data: AisShipData;
                 try {
                     data = JSON.parse(event.data);
                 } catch (e) {
