@@ -1,7 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef} from '@angular/core';
 import {LeafletModule} from "@bluehalo/ngx-leaflet";
 import {LatLng, latLng, layerGroup, Map as LeafLetMap, Marker, tileLayer} from "leaflet";
-import {FormsModule} from "@angular/forms";
 import {AisDataService} from "../services/ais-data.service";
 import {AisShipData, MarkerShipDataTuple} from "../models/ais-ship-data";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
@@ -11,7 +10,7 @@ import "leaflet.boatmarker";
 
 @Component({
     selector: 'app-map',
-    imports: [LeafletModule, FormsModule],
+    imports: [LeafletModule],
     templateUrl: './map.component.html',
     styleUrl: './map.component.css',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -107,7 +106,7 @@ export class MapComponent {
 
     private updateMarkerAndShipData(aisShipData: AisShipData, boatMarker: BoatMarker): void {
         this.shipMarkerAndDataMap.set(aisShipData.mmsi, {boatMarker, aisShipData});
-        
+
         const positionInformation = aisShipData.currentPosition;
         if (!positionInformation) {
             return
@@ -153,7 +152,7 @@ export class MapComponent {
         });
 
         marker.on('click', () => {
-            this.leafLetMap?.setView(marker.getLatLng(), this.leafLetMap?.getZoom() + 1, {animate: true});
+            this.leafLetMap?.setView(marker.getLatLng(), 14, {animate: true});
         });
     }
 

@@ -1,4 +1,30 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
 .map {
     height: 90%;
     width: 100%;
+    flex: 1 0;
+}
+
+.info {
+    display: flex;
+    gap: 8px;
+    flex: none;
+}
+
+.green {
+    background-color: #61c661;
+}
+
+.yellow {
+    background-color: #baba49;
+}
+
+.red {
+    background-color: #d15555;
 }

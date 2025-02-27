@@ -1,18 +1,21 @@
-<div>NorthWest: {{ leafLetMap?.getBounds()?.getNorthWest() }}</div>
-<div>SouthEast: {{ leafLetMap?.getBounds()?.getSouthEast() }}</div>
-<div>Center: {{ leafLetMap?.getCenter() }}</div>
-<button type="button"
-        class="btn btn-primary"
-        (click)="subscribeToOrUpdateAisStreamConnection()">Stream Ais Data
-</button>
-<button type="button"
-        class="btn btn-primary"
-        (click)="clearMarkers()">Remove Markers
-</button>
-<button type="button"
-        class="btn btn-primary"
-        (click)="stopRequestingAisData()">Stop Streaming
-</button>
+<div class="map-info">
+    <div class="info">
+        <div>Center: {{ leafLetMap?.getCenter() }}</div>
+        <div>NorthWest: {{ leafLetMap?.getBounds()?.getNorthWest() }}</div>
+        <div>SouthEast: {{ leafLetMap?.getBounds()?.getSouthEast() }}</div>
+    </div>
+    <div class="info">
+        <button class="green"
+                (click)="subscribeToOrUpdateAisStreamConnection()">Stream Ais Data
+        </button>
+        <button class="yellow"
+                (click)="clearMarkers()">Remove Markers
+        </button>
+        <button class="red"
+                (click)="stopRequestingAisData()">Stop Streaming
+        </button>
+    </div>
+</div>
 <div class="map"
      leaflet
      [leafletOptions]="options"
