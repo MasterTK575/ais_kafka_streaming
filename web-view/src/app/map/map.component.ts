@@ -20,9 +20,9 @@ import {DataDialogComponent} from "../data-dialog/data-dialog.component";
 export class MapComponent {
     protected leafLetMap?: LeafLetMap;
     protected selectedMmsi?: number;
+    protected aisStreamSubscription$: Subscription | undefined;
     private shipMarkersLayerGroup = layerGroup();
     private shipMarkerAndDataMap = new Map<Number, MarkerShipDataTuple>();
-    private aisStreamSubscription$: Subscription | undefined;
 
     // Leaflet map configuration
     private openStreetMapBaseLayer = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -166,9 +166,8 @@ export class MapComponent {
         });
 
         marker.on('click', () => {
-            this.leafLetMap?.setView(marker.getLatLng(), 12, {animate: true});
+            this.leafLetMap?.setView(marker.getLatLng(), 11, {animate: true});
             this.selectedMmsi = mmsi;
-            this.changeDetector.detectChanges();
         });
     }
 

@@ -6,7 +6,12 @@
     </div>
     <div class="info">
         <button class="green"
-                (click)="subscribeToOrUpdateAisStreamConnection()">Stream Ais Data
+                (click)="subscribeToOrUpdateAisStreamConnection()">
+            @if (aisStreamSubscription$) {
+                Update Subscription
+            } @else {
+                Stream Ais Data
+            }
         </button>
         <button class="yellow"
                 (click)="clearMarkers()">Remove Markers
