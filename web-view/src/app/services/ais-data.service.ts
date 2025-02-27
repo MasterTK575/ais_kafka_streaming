@@ -11,6 +11,7 @@ import {environment} from "../../environments/environemnt";
 export class AisDataService {
 
     public readonly AIS_DATA_STREAM_URI = `${environment.aisStreamUri}/ais-stream`;
+    public readonly AIS_AGGREGATION_URI = `${environment.aisAggregationUri}/aggregation`;
 
     constructor(private readonly httpClient: HttpClient) {
     }
@@ -44,6 +45,10 @@ export class AisDataService {
 
     public closeAisStreamSubscription(): void {
         this.makeRequest(this.buildAisSubscriptionAction(true));
+    }
+
+    public getAisAggregation(mmsi: number): Observable<any> {
+        return this.httpClient.get(`${this.AIS_AGGREGATION_URI}/${mmsi}`);
     }
 
     private makeRequest(aisSubscriptionAction: AisSubscriptionAction): void {

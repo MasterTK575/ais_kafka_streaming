@@ -7,6 +7,8 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Subscription} from "rxjs";
 import randomColor from 'randomcolor';
 import "leaflet.boatmarker";
+import {MatDialog} from "@angular/material/dialog";
+import {DataDialogComponent} from "../data-dialog/data-dialog.component";
 
 @Component({
     selector: 'app-map',
@@ -17,6 +19,7 @@ import "leaflet.boatmarker";
 })
 export class MapComponent {
     protected leafLetMap?: LeafLetMap;
+    protected selectedMmsi?: number;
     private shipMarkersLayerGroup = layerGroup();
     private shipMarkerAndDataMap = new Map<Number, MarkerShipDataTuple>();
     private aisStreamSubscription$: Subscription | undefined;
@@ -38,7 +41,8 @@ export class MapComponent {
 
     constructor(private readonly changeDetector: ChangeDetectorRef,
                 private readonly aisDataService: AisDataService,
-                private readonly destroyRef$: DestroyRef) {
+                private readonly destroyRef$: DestroyRef,
+                private readonly dialog: MatDialog) {
     }
 
     protected onCenterChange(center: LatLng) {
@@ -72,6 +76,16 @@ export class MapComponent {
     protected clearMarkers() {
         this.shipMarkersLayerGroup.clearLayers();
         this.shipMarkerAndDataMap.clear();
+    }
+
+    protected requestAggregatedData(mmsi: number) {
+        this.aisDataService.getAisAggregation(mmsi).subscribe((data) => {
+            this.dialog.open(DataDialogComponent, {
+                maxWidth: '1000px',
+                width: '1000px',
+                data: {aggregatedData: data}
+            });
+        });
     }
 
     private createServerSentEventsSubscription(): Subscription {
@@ -152,7 +166,9 @@ export class MapComponent {
         });
 
         marker.on('click', () => {
-            this.leafLetMap?.setView(marker.getLatLng(), 14, {animate: true});
+            this.leafLetMap?.setView(marker.getLatLng(), 12, {animate: true});
+            this.selectedMmsi = mmsi;
+            this.changeDetector.detectChanges();
         });
     }
 
