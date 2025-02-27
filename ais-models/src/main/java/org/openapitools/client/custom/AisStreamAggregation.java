@@ -19,21 +19,27 @@ import java.util.Map;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonSerialize
 public class AisStreamAggregation {
+
+    public static final int MAX_SHIP_DATA_HISTORY_SIZE = 10;
+
     @EqualsAndHashCode.Include
     private long mmsi;
 
-    private final Map<AisMessageTypes, List<AisStreamMessage>> orderedMessages = new HashMap<>();
-    private AisStreamMessage lastMessage;
+    private final Map<AisMessageTypes, Integer> messageTypes = new HashMap<>();
+    private final List<AisShipData> shipDataHistory = new ArrayList<>();
+    private AisShipData mostRecentShipData;
 
-    public AisStreamAggregation updateFrom(Long mmsi, AisStreamMessage aisStreamMessage) {
-        if (mmsi == null || aisStreamMessage == null) {
+    public AisStreamAggregation updateFrom(Long mmsi, AisStreamMessage aisStreamMessage, AisShipData shipData) {
+        if (mmsi == null || aisStreamMessage == null || shipData == null) {
             throw new IllegalArgumentException("Parameter must not be null");
         }
         this.mmsi = mmsi;
-        this.orderedMessages
-                .computeIfAbsent(aisStreamMessage.getMessageType(), k -> new ArrayList<>())
-                .add(aisStreamMessage);
-        lastMessage = aisStreamMessage;
+        this.messageTypes.merge(aisStreamMessage.getMessageType(), 1, Integer::sum);
+        this.shipDataHistory.add(shipData);
+        if (this.shipDataHistory.size() > MAX_SHIP_DATA_HISTORY_SIZE) {
+            this.shipDataHistory.remove(0);
+        }
+        this.mostRecentShipData.updateFrom(shipData);
         return this;
     }
 }
