@@ -77,7 +77,6 @@ export class MapComponent {
 
     private createServerSentEventsSubscription(): Subscription {
         return this.aisDataService.subscribeToAisStream().pipe(takeUntilDestroyed(this.destroyRef$)).subscribe((aisShipData: AisShipData) => {
-            console.log(aisShipData);
             this.updateOrCreateMarker(aisShipData);
         });
     }
@@ -85,7 +84,7 @@ export class MapComponent {
     private updateOrCreateMarker(aisShipData: AisShipData): void {
         const markerShipDataTuple = this.shipMarkerAndDataMap.get(aisShipData.mmsi);
         if (markerShipDataTuple) {
-            this.updateMarkerAndShipData(aisShipData, markerShipDataTuple.boatMarker, markerShipDataTuple.aisShipData);
+            this.updateMarkerAndShipData(aisShipData, markerShipDataTuple.boatMarker);
             return;
         }
 
@@ -106,36 +105,16 @@ export class MapComponent {
         this.attachEventListener(boatMarker, aisShipData.mmsi);
     }
 
-    private updateMarkerAndShipData(newAisShipData: AisShipData, marker: BoatMarker, oldAisShipData: AisShipData): void {
-        if (newAisShipData.shipName) {
-            oldAisShipData.shipName = newAisShipData.shipName;
-        }
-        if (newAisShipData.shipType) {
-            oldAisShipData.shipType = newAisShipData.shipType;
-        }
-        if (newAisShipData.destination) {
-            oldAisShipData.destination = newAisShipData.destination;
-        }
-        if (newAisShipData.eta) {
-            oldAisShipData.eta = newAisShipData.eta;
-        }
-        if (newAisShipData.navigationalStatus) {
-            oldAisShipData.navigationalStatus = newAisShipData.navigationalStatus;
-        }
-        if (newAisShipData.currentPosition) {
-            oldAisShipData.currentPosition = newAisShipData.currentPosition;
-        }
-        if (newAisShipData.timestamp) {
-            oldAisShipData.timestamp = newAisShipData.timestamp;
-        }
-
-        const positionInformation = newAisShipData.currentPosition;
+    private updateMarkerAndShipData(aisShipData: AisShipData, boatMarker: BoatMarker): void {
+        this.shipMarkerAndDataMap.set(aisShipData.mmsi, {boatMarker, aisShipData});
+        
+        const positionInformation = aisShipData.currentPosition;
         if (!positionInformation) {
             return
         }
-        marker.setLatLng([positionInformation.latitude, positionInformation.longitude]);
-        marker.setHeading(positionInformation.trueHeading);
-        marker.setSpeed(positionInformation.speedOverGround);
+        boatMarker.setLatLng([positionInformation.latitude, positionInformation.longitude]);
+        boatMarker.setHeading(positionInformation.trueHeading);
+        boatMarker.setSpeed(positionInformation.speedOverGround);
     }
 
     private attachEventListener(marker: Marker, mmsi: number) {

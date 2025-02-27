@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -33,6 +34,7 @@ public class TopologyProducer {
         ObjectMapperSerde<AisStreamMessage> aisStreamMessageSerde = new ObjectMapperSerde<>(AisStreamMessage.class);
         ObjectMapperSerde<AisStreamAggregation> aisStreamAggregationSerde =
                 new ObjectMapperSerde<>(AisStreamAggregation.class);
+        ObjectMapperSerde<AisShipData> aisShipDataSerde = new ObjectMapperSerde<>(AisShipData.class);
 
         KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(AIS_AGGREGATION_STORE);
 
@@ -50,7 +52,8 @@ public class TopologyProducer {
                                 .withKeySerde(Serdes.Long())
                                 .withValueSerde(aisStreamAggregationSerde))
                 .toStream()
-                .to(AIS_SHIP_DATA_TOPIC, Produced.with(Serdes.Long(), aisStreamAggregationSerde));
+                .map((mmsi, aisStreamAggregation) -> KeyValue.pair(mmsi, aisStreamAggregation.getMostRecentShipData()))
+                .to(AIS_SHIP_DATA_TOPIC, Produced.with(Serdes.Long(), aisShipDataSerde));
 
         return builder.build();
     }
