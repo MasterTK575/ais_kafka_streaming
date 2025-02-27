@@ -27,7 +27,7 @@ public class AisStreamAggregation {
 
     private final Map<AisMessageTypes, Integer> messageTypes = new HashMap<>();
     private final List<AisShipData> shipDataHistory = new ArrayList<>();
-    private AisShipData mostRecentShipData;
+    private AisShipData mostRecentShipData = new AisShipData();
 
     public AisStreamAggregation updateFrom(Long mmsi, AisStreamMessage aisStreamMessage, AisShipData shipData) {
         if (mmsi == null || aisStreamMessage == null || shipData == null) {
@@ -36,10 +36,13 @@ public class AisStreamAggregation {
         this.mmsi = mmsi;
         this.messageTypes.merge(aisStreamMessage.getMessageType(), 1, Integer::sum);
         this.shipDataHistory.add(shipData);
+
         if (this.shipDataHistory.size() > MAX_SHIP_DATA_HISTORY_SIZE) {
             this.shipDataHistory.remove(0);
         }
+
         this.mostRecentShipData.updateFrom(shipData);
+
         return this;
     }
 }
