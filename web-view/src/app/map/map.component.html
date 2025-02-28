@@ -13,9 +13,11 @@
                 Stream Ais Data
             }
         </button>
-        <button class="yellow"
-                (click)="clearMarkers()">Remove Markers
-        </button>
+        @if (shipMarkerAndDataMap.size > 0) {
+            <button class="yellow"
+                    (click)="clearMarkers()">Remove Markers
+            </button>
+        }
         @if (aisStreamSubscription$) {
             <button class="red"
                     (click)="stopRequestingAisData()">Stop Streaming

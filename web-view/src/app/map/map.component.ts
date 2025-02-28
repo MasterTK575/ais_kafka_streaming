@@ -21,8 +21,8 @@ export class MapComponent {
     protected leafLetMap?: LeafLetMap;
     protected selectedMmsi?: number;
     protected aisStreamSubscription$: Subscription | undefined;
+    protected shipMarkerAndDataMap = new Map<Number, MarkerShipDataTuple>();
     private shipMarkersLayerGroup = layerGroup();
-    private shipMarkerAndDataMap = new Map<Number, MarkerShipDataTuple>();
 
     // Leaflet map configuration
     private openStreetMapBaseLayer = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
