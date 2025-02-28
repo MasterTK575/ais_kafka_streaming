@@ -78,6 +78,7 @@ The following section provides a detailed, integrated description of each servic
 
 ### Prerequisites
 
+- **Java** to build the quarkus services (via the build script) - a two-stage dockerfile is in the works to avoid this dependency.
 - **Docker** to run the services in containers.
 - **Api Key** to access the [AisStream](https://aisstream.io) API. Create a`.env` file in the `/geo-data-producer` root directory and add `AIS_STREAMS_API_KEY=your_api_key` to it.
 
@@ -86,8 +87,8 @@ The following section provides a detailed, integrated description of each servic
 1. **Clone the Repository:**
 
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone git@git.haw-hamburg.de:infwah398/quarkus_kafka_streaming.git
+   cd quarkus_kafka_streaming
    ```
    
 2. **Start the Services Using The Build script**
@@ -155,4 +156,4 @@ The following section provides a detailed, integrated description of each servic
 
 ---
 
-By following this guide, you should have a fully operational real-time AIS data streaming system that demonstrates the integration of Quarkus, Kafka Streams, and Angular with ngx-leaflet. Enjoy exploring and extending this project!
+By following this guide, you should have a fully operational real-time AIS data streaming system that demonstrates the integration of Quarkus, Kafka Streams, and Angular with ngx-leaflet.

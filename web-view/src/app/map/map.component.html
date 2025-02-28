@@ -16,9 +16,11 @@
         <button class="yellow"
                 (click)="clearMarkers()">Remove Markers
         </button>
-        <button class="red"
-                (click)="stopRequestingAisData()">Stop Streaming
-        </button>
+        @if (aisStreamSubscription$) {
+            <button class="red"
+                    (click)="stopRequestingAisData()">Stop Streaming
+            </button>
+        }
         @if (selectedMmsi) {
             <button class="green"
                     (click)="requestAggregatedData(selectedMmsi)">Request Data for Ship: {{ selectedMmsi }}
