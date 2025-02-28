@@ -1,4 +1,4 @@
-package com.haw.hurtigruten.kafka.resource;
+package com.haw.hurtigruten.aisstream.resource;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.reactive.messaging.kafka.Record;

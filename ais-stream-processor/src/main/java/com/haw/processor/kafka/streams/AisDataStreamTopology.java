@@ -20,7 +20,7 @@ import org.openapitools.client.model.AisStreamMessage;
 
 @ApplicationScoped
 @RequiredArgsConstructor
-public class TopologyProducer {
+public class AisDataStreamTopology {
 
     public static final String AIS_AGGREGATION_STORE = "ais-aggregation-store";
     private static final String AIS_MESSAGES_RAW_TOPIC = "ais-messages-raw";
@@ -57,7 +57,4 @@ public class TopologyProducer {
 
         return builder.build();
     }
-
-    // TODO: use aggregation for internal storage and maybe interactive query
-
 }

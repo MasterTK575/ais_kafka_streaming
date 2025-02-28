@@ -1,8 +1,7 @@
 package com.haw.hurtigruten.aisstream.api;
 
 import com.haw.hurtigruten.aisstream.gateway.AisStreamSubscriptionGateway;
-import com.haw.hurtigruten.kafka.resource.AisDataConsumer;
-import io.quarkus.logging.Log;
+import com.haw.hurtigruten.aisstream.resource.AisDataConsumer;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.ws.rs.*;
@@ -30,7 +29,6 @@ public class AisStreamRestController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response setOrUpdateAisStreamSubscription(SubscriptionAction subscriptionAction) {
-        Log.info(String.format("Received SubscriptionAction and forwarding it: %s", subscriptionAction));
         this.aisStreamSubscriptionGateway.emit(subscriptionAction);
         return Response.ok().build();
     }

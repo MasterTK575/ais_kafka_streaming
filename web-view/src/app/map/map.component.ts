@@ -81,8 +81,8 @@ export class MapComponent {
     protected requestAggregatedData(mmsi: number) {
         this.aisDataService.getAisAggregation(mmsi).subscribe((data) => {
             this.dialog.open(DataDialogComponent, {
-                maxWidth: '1000px',
-                width: '1000px',
+                maxWidth: '650px',
+                width: '650px',
                 data: {aggregatedData: data}
             });
         });
@@ -166,7 +166,7 @@ export class MapComponent {
         });
 
         marker.on('click', () => {
-            this.leafLetMap?.setView(marker.getLatLng(), 11, {animate: true});
+            this.leafLetMap?.setView(marker.getLatLng(), Math.max(12, this.leafLetMap?.getZoom() ?? 12), {animate: true});
             this.selectedMmsi = mmsi;
         });
     }

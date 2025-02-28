@@ -26,8 +26,8 @@ public class AisStreamAggregation {
     private long mmsi;
 
     private final Map<AisMessageTypes, Integer> messageTypes = new HashMap<>();
-    private final List<AisShipData> shipDataHistory = new ArrayList<>();
     private AisShipData mostRecentShipData = new AisShipData();
+    private final List<AisShipData> shipDataHistory = new ArrayList<>();
 
     public AisStreamAggregation updateFrom(Long mmsi, AisStreamMessage aisStreamMessage, AisShipData shipData) {
         if (mmsi == null || aisStreamMessage == null || shipData == null) {

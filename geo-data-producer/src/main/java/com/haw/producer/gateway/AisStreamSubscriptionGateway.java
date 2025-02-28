@@ -22,14 +22,13 @@ public class AisStreamSubscriptionGateway {
 
     @Incoming("ais-subscriptions")
     public void handleAisSubscriptionAction(SubscriptionAction subscriptionAction) throws URISyntaxException {
-        Log.info(String.format("Received subscription action: %s", subscriptionAction));
         if (subscriptionAction.isCloseConnection()) {
             this.aisStreamClient.closeConnection();
             return;
         }
 
         if (subscriptionAction.getBoundingBoxes().isEmpty()) {
-            Log.info(String.format("No bounding boxes provided, skipping SubscriptionAction: %s", subscriptionAction));
+            Log.warn("No bounding boxes provided, skipping SubscriptionAction");
             return;
         }
 

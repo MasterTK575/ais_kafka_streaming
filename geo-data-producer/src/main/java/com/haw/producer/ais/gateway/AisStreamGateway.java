@@ -1,4 +1,4 @@
-package com.haw.producer.ais.handler;
+package com.haw.producer.ais.gateway;
 
 import io.quarkus.logging.Log;
 import io.smallrye.reactive.messaging.kafka.Record;
@@ -12,7 +12,7 @@ import org.openapitools.client.model.Error;
 import java.util.Map;
 
 @ApplicationScoped
-public class AisStreamHandler {
+public class AisStreamGateway {
 
     public static final String MMSI = "MMSI";
 

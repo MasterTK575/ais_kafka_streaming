@@ -1,6 +1,6 @@
 package com.haw.producer.ais.websocket;
 
-import com.haw.producer.ais.handler.AisStreamHandler;
+import com.haw.producer.ais.gateway.AisStreamGateway;
 import io.quarkus.logging.Log;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -18,14 +18,14 @@ import java.nio.charset.StandardCharsets;
  */
 public class AisStreamWebsocketClient extends WebSocketClient {
 
-    private final AisStreamHandler aisStreamHandler;
+    private final AisStreamGateway aisStreamGateway;
     private SubscriptionMessage subscriptionMessage;
 
     public AisStreamWebsocketClient(
-            URI serverURI, SubscriptionMessage subscriptionMessage, AisStreamHandler aisStreamHandler) {
+            URI serverURI, SubscriptionMessage subscriptionMessage, AisStreamGateway aisStreamGateway) {
         super(serverURI);
         this.subscriptionMessage = subscriptionMessage;
-        this.aisStreamHandler = aisStreamHandler;
+        this.aisStreamGateway = aisStreamGateway;
     }
 
     @Override
@@ -45,14 +45,14 @@ public class AisStreamWebsocketClient extends WebSocketClient {
 
         try {
             AisStreamMessage aisStreamMessage = AisStreamMessage.fromJson(jsonString);
-            this.aisStreamHandler.handleAisStreamMessage(aisStreamMessage);
+            this.aisStreamGateway.handleAisStreamMessage(aisStreamMessage);
             return;
         } catch (IOException ignored) {
         }
 
         try {
             Error error = Error.fromJson(jsonString);
-            this.aisStreamHandler.handleAisStreamError(error);
+            this.aisStreamGateway.handleAisStreamError(error);
         } catch (IOException ex) {
             Log.error("An error occurred while parsing ais message {}", ex);
         }

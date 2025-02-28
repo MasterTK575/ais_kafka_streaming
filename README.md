@@ -52,6 +52,12 @@ The following section provides a detailed, integrated description of each servic
     - Establishes a GET request to the SSE endpoint to start receiving continuous ship updates.
     - Optionally, it can query the REST endpoint provided by the AIS Stream Processor to fetch aggregated details for a particular ship.
 
+### Ais-Models
+- **Role & Function:**  
+  Contains generated data models (using [openapi-generator](https://github.com/OpenAPITools/openapi-generator)) based on the [ais-message-models](https://github.com/aisstream/ais-message-models).
+  Additionally, a few custom classes like the `AisShipData` and `AisStreamAggregation` are defined to represent the processed data.
+  These are used across the Quarkus microservices to ensure consistency in data representation and processing logic throughout the system.
+
 ### End-to-End Workflow Summary
 
 1. **Data Ingestion:**

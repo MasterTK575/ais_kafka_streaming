@@ -1,6 +1,6 @@
 package com.haw.producer.ais.client;
 
-import com.haw.producer.ais.handler.AisStreamHandler;
+import com.haw.producer.ais.gateway.AisStreamGateway;
 import com.haw.producer.ais.websocket.AisStreamWebsocketClient;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,7 +18,7 @@ public class AisStreamClient {
     @ConfigProperty(name = "ais.streams.api.uri")
     String aisStreamsApiUri;
 
-    private final AisStreamHandler aisStreamHandler;
+    private final AisStreamGateway aisStreamGateway;
     private AisStreamWebsocketClient aisStreamWebsocketClient;
 
     public void connectToOrUpdateAisStream(SubscriptionMessage subscriptionMessage) throws URISyntaxException {
@@ -28,7 +28,7 @@ public class AisStreamClient {
         }
 
         this.aisStreamWebsocketClient = new AisStreamWebsocketClient(
-                new URI(this.aisStreamsApiUri), subscriptionMessage, this.aisStreamHandler);
+                new URI(this.aisStreamsApiUri), subscriptionMessage, this.aisStreamGateway);
         this.aisStreamWebsocketClient.connect();
     }
 

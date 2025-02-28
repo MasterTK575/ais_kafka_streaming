@@ -17,4 +17,4 @@ done
 
 # Once all builds are complete, run docker-compose to start the containers with a rebuild
 echo "Starting Docker containers with docker-compose up --build"
-docker-compose up --build
+docker compose up --build

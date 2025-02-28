@@ -30,7 +30,7 @@ public class AisAggregationQuery {
     private ReadOnlyKeyValueStore<Long, AisStreamAggregation> getAisAggregationStore() {
         try {
             return streams.store(StoreQueryParameters.fromNameAndType(
-                    TopologyProducer.AIS_AGGREGATION_STORE, QueryableStoreTypes.keyValueStore()));
+                    AisDataStreamTopology.AIS_AGGREGATION_STORE, QueryableStoreTypes.keyValueStore()));
         } catch (InvalidStateStoreException e) {
             Log.error("Error while accessing store", e);
             return null;
