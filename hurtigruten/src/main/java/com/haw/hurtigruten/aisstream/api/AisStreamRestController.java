@@ -12,6 +12,9 @@ import org.jboss.resteasy.reactive.RestStreamElementType;
 import org.openapitools.client.custom.AisShipData;
 import org.openapitools.client.custom.SubscriptionAction;
 
+/**
+ * REST endpoint for streaming AIS data.
+ */
 @Path("/ais-stream")
 @RequiredArgsConstructor
 public class AisStreamRestController {
@@ -19,6 +22,11 @@ public class AisStreamRestController {
     private final AisDataConsumer aisDataConsumer;
     private final AisStreamSubscriptionGateway aisStreamSubscriptionGateway;
 
+    /**
+     * Expose a server-sent event stream of processed AIS data.
+     * It uses the {@link AisDataConsumer} to get the AIS data stream sends it to the client.
+     * @return a stream of AIS data
+     */
     @GET
     @Produces(MediaType.SERVER_SENT_EVENTS) // not strictly necessary when using @RestStreamElementType
     @RestStreamElementType(MediaType.APPLICATION_JSON)
@@ -26,6 +34,11 @@ public class AisStreamRestController {
         return aisDataConsumer.getAisStreamMessages().map(Record::value);
     }
 
+    /**
+     * Set or update an AIS stream subscription.
+     * @param subscriptionAction the subscription action
+     * @return ok if the subscription was set or updated
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response setOrUpdateAisStreamSubscription(SubscriptionAction subscriptionAction) {

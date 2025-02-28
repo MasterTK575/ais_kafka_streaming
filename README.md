@@ -80,7 +80,7 @@ The following section provides a detailed, integrated description of each servic
 
 - **Java** to build the quarkus services (via the build script) - a two-stage dockerfile is in the works to avoid this dependency.
 - **Docker** to run the services in containers.
-- **Api Key** to access the [AisStream](https://aisstream.io) API. Create a`.env` file in the `/geo-data-producer` root directory and add `AIS_STREAMS_API_KEY=your_api_key` to it.
+- **Api Key** to access the [AisStream](https://aisstream.io) API. Create a `.env` file in the `/geo-data-producer` root directory and add `AIS_STREAMS_API_KEY=your_api_key` to it.
 
 ### Building and Running the Services
 
@@ -107,6 +107,13 @@ The following section provides a detailed, integrated description of each servic
 ---
 
 ## Usage
+
+### **Important:**
+The very first time you click the "Stream Ais Data" button,
+it may take a while for the markers to appear on the map.
+This is partly due to the buffering of messages in the Kafka Streams Pipeline.
+As long as the network tab indicates that the SSE stream is active, the system should be working as expected and the markers will appear.
+Check the Kafka UI to monitor the flow of messages. Subsequent requests will be faster.
 
 1. **Subscribing to Real-Time AIS Data:**
     - Open your browser and navigate to [http://localhost:4200](http://localhost:4200).

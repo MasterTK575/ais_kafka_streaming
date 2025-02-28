@@ -11,12 +11,20 @@ import org.openapitools.client.custom.AisStreamAggregation;
 
 import java.util.Optional;
 
+/**
+ * REST endpoint for querying aggregated AIS data via the materialized state store.
+ */
 @RequiredArgsConstructor
 @Path("/aggregation")
 public class AisAggregationRestController {
 
     private final AisAggregationQuery aisAggregationQuery;
 
+    /**
+     * Get the aggregated AIS data for a specific ship.
+     * @param mmsi the MMSI of the ship
+     * @return the aggregated AIS data
+     */
     @GET
     @Path("/{mmsi:\\d+}")
     @Produces(MediaType.APPLICATION_JSON)

@@ -18,6 +18,9 @@ import org.openapitools.client.custom.AisShipData;
 import org.openapitools.client.custom.AisStreamAggregation;
 import org.openapitools.client.model.AisStreamMessage;
 
+/**
+ * This class is used to build the Kafka Streams topology for processing AIS data.
+ */
 @ApplicationScoped
 @RequiredArgsConstructor
 public class AisDataStreamTopology {
@@ -27,6 +30,11 @@ public class AisDataStreamTopology {
     private static final String AIS_SHIP_DATA_TOPIC = "ais-ship-data";
     private final AisInformationExtractionService aisInformationExtractionService;
 
+    /**
+     * Build the Kafka Streams topology for processing AIS data.
+     * This topology reads raw AIS messages, aggregates them by MMSI, and extracts ship data.
+     * @return the Kafka Streams topology
+     */
     @Produces
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();

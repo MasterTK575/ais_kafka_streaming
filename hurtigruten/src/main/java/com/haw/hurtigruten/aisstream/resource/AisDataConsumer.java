@@ -7,6 +7,9 @@ import lombok.Getter;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.openapitools.client.custom.AisShipData;
 
+/**
+ * Consumes AIS data from the ais-ship-data channel and exposes it as a stream.
+ */
 @Getter
 @ApplicationScoped
 public class AisDataConsumer {

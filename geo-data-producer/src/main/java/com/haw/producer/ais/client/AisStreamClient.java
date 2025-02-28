@@ -11,6 +11,9 @@ import org.openapitools.client.model.SubscriptionMessage;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * Client for connecting to the AIS stream API.
+ */
 @ApplicationScoped
 @RequiredArgsConstructor
 public class AisStreamClient {
@@ -21,6 +24,11 @@ public class AisStreamClient {
     private final AisStreamGateway aisStreamGateway;
     private AisStreamWebsocketClient aisStreamWebsocketClient;
 
+    /**
+     * Connect to or update the AIS stream subscription with the given subscription message and the websocket client.
+     * @param subscriptionMessage the subscription message
+     * @throws URISyntaxException if the URI set in the configuration is invalid
+     */
     public void connectToOrUpdateAisStream(SubscriptionMessage subscriptionMessage) throws URISyntaxException {
         if (this.aisStreamWebsocketClient != null) {
             this.aisStreamWebsocketClient.updateSubscription(subscriptionMessage);

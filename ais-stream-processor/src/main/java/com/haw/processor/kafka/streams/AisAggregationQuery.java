@@ -12,12 +12,20 @@ import org.openapitools.client.custom.AisStreamAggregation;
 
 import java.util.Optional;
 
+/**
+ * This class is used to query the materialized state store for aggregated AIS data.
+ */
 @ApplicationScoped
 @RequiredArgsConstructor
 public class AisAggregationQuery {
 
     private final KafkaStreams streams;
 
+    /**
+     * Get the aggregated AIS data for a specific ship.
+     * @param mmsi the MMSI of the ship
+     * @return the aggregated AIS data
+     */
     public Optional<AisStreamAggregation> getAisStreamAggregation(long mmsi) {
         ReadOnlyKeyValueStore<Long, AisStreamAggregation> aisAggregationStore = this.getAisAggregationStore();
         if (aisAggregationStore == null) {
@@ -27,6 +35,10 @@ public class AisAggregationQuery {
         return Optional.ofNullable(result);
     }
 
+    /**
+     * Get the AIS aggregation store from the Kafka Streams instance based on our custom store name.
+     * @return the AIS aggregation store
+     */
     private ReadOnlyKeyValueStore<Long, AisStreamAggregation> getAisAggregationStore() {
         try {
             return streams.store(StoreQueryParameters.fromNameAndType(

@@ -1,4 +1,4 @@
-package com.haw.producer.gateway;
+package com.haw.producer.ais.gateway;
 
 import com.haw.producer.ais.client.AisStreamClient;
 import io.quarkus.logging.Log;

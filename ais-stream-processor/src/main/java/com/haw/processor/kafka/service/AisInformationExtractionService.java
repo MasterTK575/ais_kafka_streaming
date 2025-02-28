@@ -12,9 +12,19 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
+/**
+ * Service for extracting relevant information from AIS messages.
+ * Relevant information includes ship name, destination, ETA, position, navigational status, and ship type.
+ */
 @ApplicationScoped
 public class AisInformationExtractionService {
 
+    /**
+     * Extracts relevant information from an AIS message.
+     * @param mmsi The MMSI of the ship.
+     * @param aisStreamMessage The incoming AIS message.
+     * @return AisShipData object containing the extracted information.
+     */
     public AisShipData getShipData(long mmsi, AisStreamMessage aisStreamMessage) {
         String shipName = null, timestamp = null;
 
@@ -40,6 +50,11 @@ public class AisInformationExtractionService {
                 mmsi, shipName, shipType, destination, eta, currentPosition, navigationalStatus, timestamp);
     }
 
+    /**
+     * Extracts the ship name from an AIS message.
+     * @param aisStreamMessage The incoming AIS message.
+     * @return The ship name, or null if not available.
+     */
     private String getShipName(AisStreamMessage aisStreamMessage) {
         return switch (aisStreamMessage.getMessageType()) {
             case AisMessageTypes.SHIP_STATIC_DATA -> {
@@ -59,6 +74,11 @@ public class AisInformationExtractionService {
         };
     }
 
+    /**
+     * Extracts the destination from an AIS message.
+     * @param aisStreamMessage The incoming AIS message.
+     * @return The destination, or null if not available.
+     */
     private String getDestination(AisStreamMessage aisStreamMessage) {
         ShipStaticData shipStaticData = aisStreamMessage.getMessage().getShipStaticData();
         String destination =
@@ -67,6 +87,7 @@ public class AisInformationExtractionService {
     }
 
     /**
+     * Extracts the ETA from an AIS message.
      * @param aisStreamMessage The incoming AIS message.
      * @return ETA String converted to system default zone, or null if not available.
      */
@@ -98,11 +119,21 @@ public class AisInformationExtractionService {
         return etaDateTime.toInstant().atZone(ZoneId.systemDefault()).toString();
     }
 
+    /**
+     * Extracts the navigational status from an AIS message.
+     * @param aisStreamMessage The incoming AIS message.
+     * @return The navigational status, or null if not available.
+     */
     private NavigationalStatus getNavigationalStatus(AisStreamMessage aisStreamMessage) {
         PositionReport positionReport = aisStreamMessage.getMessage().getPositionReport();
         return positionReport != null ? NavigationalStatus.fromCode(positionReport.getNavigationalStatus()) : null;
     }
 
+    /**
+     * Extracts the ship type from an AIS message.
+     * @param aisStreamMessage The incoming AIS message.
+     * @return The ship type, or null if not available.
+     */
     private AisShipType getShipType(AisStreamMessage aisStreamMessage) {
         return switch (aisStreamMessage.getMessageType()) {
             case AisMessageTypes.SHIP_STATIC_DATA -> {
@@ -121,6 +152,8 @@ public class AisInformationExtractionService {
     }
 
     /**
+     * Extracts the position information from an AIS message.
+     * @param aisStreamMessage The incoming AIS message.
      * @return PositionInformation or null if the message type is not a position report
      */
     private PositionInformation getPositionInformation(AisStreamMessage aisStreamMessage) {
@@ -161,6 +194,12 @@ public class AisInformationExtractionService {
         };
     }
 
+    /**
+     * Extracts the heading from an AIS message.
+     * @param trueHeading The true heading.
+     * @param cog The course over ground.
+     * @return The heading. If the true heading is greater than 360, the course over ground is used instead.
+     */
     private int getHeading(int trueHeading, Double cog) {
         return trueHeading <= 360 ? trueHeading : cog.intValue();
     }

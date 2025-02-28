@@ -14,7 +14,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Websocket client for connecting to the AIS stream
+ * Websocket client for connecting to the AIS stream.
+ * It sends the subscription message upon connection and forwards the received messages to the ais stream gateway.
  */
 public class AisStreamWebsocketClient extends WebSocketClient {
 
@@ -28,17 +29,31 @@ public class AisStreamWebsocketClient extends WebSocketClient {
         this.aisStreamGateway = aisStreamGateway;
     }
 
+    /**
+     * Called when the websocket connection is opened.
+     * It sends the subscription message upon connection.
+     * @param handshakedata The handshake of the websocket instance
+     */
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         // send subscription message upon connection
         send(this.subscriptionMessage.toJson());
     }
 
+    /**
+     * Updates the subscription message and sends it to the AIS stream.
+     * @param subscriptionMessage the new subscription message
+     */
     public void updateSubscription(SubscriptionMessage subscriptionMessage) {
         this.subscriptionMessage = subscriptionMessage;
         send(subscriptionMessage.toJson());
     }
 
+    /**
+     * Called when a message is received from the AIS stream.
+     * It parses the message and forwards it to the ais stream gateway.
+     * @param message The binary message that was received.
+     */
     @Override
     public void onMessage(ByteBuffer message) {
         String jsonString = StandardCharsets.UTF_8.decode(message).toString();

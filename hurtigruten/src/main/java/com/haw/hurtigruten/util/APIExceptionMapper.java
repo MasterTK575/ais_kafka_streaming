@@ -15,15 +15,21 @@ public class APIExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(Exception exception) {
         switch (exception) {
             case ConstraintViolationException e -> {
-                return Response.status(Response.Status.BAD_REQUEST).entity(exception.toString()).build();
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(e.toString())
+                        .build();
             }
             case NotFoundException e -> {
                 Log.debug(exception);
-                return Response.status(Response.Status.NOT_FOUND).entity(exception.toString()).build();
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(e.toString())
+                        .build();
             }
             default -> {
                 Log.error(exception);
-                return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(exception.toString()).build();
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(exception.toString())
+                        .build();
             }
         }
     }
