@@ -19,11 +19,12 @@ This project demonstrates a real-time data streaming pipeline that ingests AIS (
 
 The system ingests real-time AIS data through a free WebSocket API provided by [AisStream](https://aisstream.io). The data flows through a series of interrelated services that are each responsible for a specific aspect of data handling—from ingestion and processing to distribution and visualization. This integrated architecture ensures that raw AIS data is transformed into actionable, real-time information that can be displayed on an interactive map and queried for detailed insights.
 
+![web-view](./assets/web-view.png)
 ---
 
 ## Architecture, Workflow & Service Descriptions
 
-The following section provides a detailed, integrated description of each service along with its role within the overall architecture and workflow.
+![architecture](./assets/architecture.png)
 
 ### Geo Data Producer
 - **Role & Function:**  
@@ -87,8 +88,8 @@ The following section provides a detailed, integrated description of each servic
 1. **Clone the Repository:**
 
    ```bash
-   git clone git@git.haw-hamburg.de:infwah398/quarkus_kafka_streaming.git
-   cd quarkus_kafka_streaming
+   git clone <repository>
+   cd <repository>
    ```
    
 2. **Start the Services Using The Build script**
@@ -122,20 +123,27 @@ Check the Kafka UI to monitor the flow of messages. Subsequent requests will be 
     - Click the "Stream Ais Data" button. This sends:
         - A POST request to the Hurtigruten service to subscribe (forwarded to the `ais-subscriptions` channel).
         - A GET request to the SSE endpoint to begin receiving real-time ship data.
+      
+  ![web-view](./assets/web-view.png)
 
 2. **Viewing Ship Markers:**
     - After a few seconds, the Angular map will display ship markers based on the incoming data.
     - Markers are updated in real time based on location, heading and speed as new data arrives.
     - Hover over a marker to view detailed ship information (MMSI, latitude, longitude, heading, speed, type, destination, etc.).
 
+  ![ship-details](./assets/ship-details.png)
+
 3. **Querying Aggregated Ship Data:**
     - Click on a marker (to select the MMSI) and then click on the "Request Data for Ship" button to query detailed aggregated information about this specific ship.
     - The request is routed to the REST endpoint exposed by the AIS Stream Processor, which queries the `ais-aggregation-store`.
     - The response is displayed on the frontend (in a Popup), providing detailed information about messages received from the ship so far.
 
+  ![aggregate](./assets/aggregate.png)
+
 4. **Monitoring Kafka:**
     - Visit [http://localhost:8888](http://localhost:8888) to access the [Kafka UI](https://github.com/kafbat/kafka-ui). This interface allows you to monitor topics, view messages, and manage your Kafka cluster.
 
+  ![kafka-ui](./assets/kafka-ui.png)
 ---
 
 ## Technologies
