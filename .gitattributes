@@ -1,0 +1,3 @@
+* text=auto
+# Ensure gradlew scripts use LF line endings so that they work in the docker container
+*/gradlew text eol=lf
