@@ -1,0 +1,26 @@
+# === Stage 1: Build Stage ===
+FROM gradle:8.13.0-jdk21-ubi-minimal AS builder
+WORKDIR /workspace
+# Copy all project files to the container
+COPY ais-stream-processor microservice/
+# Copy ais-models with same relative path
+COPY ais-models ais-models/
+
+WORKDIR /workspace/microservice
+RUN ./gradlew build --no-daemon
+
+# === Stage 2: Runtime Stage ===
+FROM registry.access.redhat.com/ubi8/openjdk-21:1.19
+WORKDIR /deployments
+# Copy the built artifacts from the builder stage into the runtime image
+COPY --from=builder /workspace/microservice/build/quarkus-app/lib/ lib/
+COPY --from=builder /workspace/microservice/build/quarkus-app/*.jar .
+COPY --from=builder /workspace/microservice/build/quarkus-app/app/ app/
+COPY --from=builder /workspace/microservice/build/quarkus-app/quarkus/ quarkus/
+
+EXPOSE 8080
+USER 185
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
+
+ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]

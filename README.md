@@ -79,31 +79,31 @@ The system ingests real-time AIS data through a free WebSocket API provided by [
 
 ### Prerequisites
 
-- **Java** to build the quarkus services (via the build script) - a two-stage dockerfile is in the works to avoid this dependency.
 - **Docker** to run the services in containers.
-- **Api Key** to access the [AisStream](https://aisstream.io) API. Create a `.env` file in the `/geo-data-producer` root directory and add `AIS_STREAMS_API_KEY=your_api_key` to it.
+- **Api Key** to access the [AisStream](https://aisstream.io) API. Create a `.env` file in root of the `/geo-data-producer` directory and add `AIS_STREAMS_API_KEY=<your_api_key>` to it.
 
 ### Building and Running the Services
 
-1. **Clone the Repository:**
+#### Clone the Repository:
 
    ```bash
    git clone <repository>
    cd <repository>
    ```
    
-2. **Start the Services Using The Build script**
+#### Start the Services Using Docker Compose
 
-   A root-level build script is provided to (build) and start all services. Run:
+  All services are orchestrated via the `docker-compose.yml` file. In the `root` of the project run:
 
    ```bash
-   ./build_and_deploy.sh
+   docker compose up
    ```
-   
-   - This command will start:
-       - All Quarkus microservices.
-       - Kafka along with the [Kafka UI](https://github.com/kafbat/kafka-ui) (accessible at [http://localhost:8888](http://localhost:8888)).
-       - The Angular frontend (accessible at [http://localhost:4200](http://localhost:4200)).
+  
+  Add the `--build` flag if you made changes to the code.
+  This command will start:
+  - All Quarkus microservices.
+  - Kafka along with the [Kafka UI](https://github.com/kafbat/kafka-ui) (accessible at [http://localhost:8888](http://localhost:8888)).
+  - The Angular frontend (accessible at [http://localhost:4200](http://localhost:4200)).
 
 ---
 

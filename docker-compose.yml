@@ -3,8 +3,8 @@ services:
   hurtigruten:
     container_name: hurtigruten
     build:
-      context: hurtigruten
-      dockerfile: src/main/docker/Dockerfile.jvm
+      context: .
+      dockerfile: Dockerfile.hurtigruten
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9093
       QUARKUS_HTTP_CORS_ORIGINS: http://localhost:4200 # edit this is you change the web-view port
@@ -18,8 +18,8 @@ services:
     env_file:
       - geo-data-producer/.env
     build:
-      context: geo-data-producer
-      dockerfile: src/main/docker/Dockerfile.jvm
+      context: .
+      dockerfile: Dockerfile.producer
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9093
     ports:
@@ -30,8 +30,8 @@ services:
   ais-stream-processor:
     container_name: ais-stream-processor
     build:
-      context:  ais-stream-processor
-      dockerfile: src/main/docker/Dockerfile.jvm
+      context:  .
+      dockerfile: Dockerfile.processor
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9093
       QUARKUS_HTTP_CORS_ORIGINS: http://localhost:4200 # edit this is you change the web-view port
